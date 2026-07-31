@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sense — Options</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="options-header">
+      <div class="brand">Sense</div>
+      <p class="subtitle">
+        Customize the devices offered in each category. Changes save automatically and apply
+        the next time you open a preview.
+      </p>
+    </header>
+
+    <main id="categories" class="categories"></main>
+
+    <footer class="options-footer">
+      <button id="reset-all" type="button" class="btn">Reset all categories to defaults</button>
+      <p id="save-status" class="save-status" aria-live="polite"></p>
+    </footer>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

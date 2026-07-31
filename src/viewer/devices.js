@@ -2,7 +2,11 @@
 // originally shipped with (Mobile 375×667, Tablet 768×1024, Laptop 1366×768,
 // Desktop 1920×1080), so existing behavior is unchanged until a user picks
 // a different device from the list.
-export const DEVICE_CATEGORIES = [
+//
+// This is the fallback/reset source of truth — the options page persists a
+// user-customized copy to chrome.storage.local, which takes over at runtime
+// when present. This constant itself is never mutated.
+export const DEFAULT_DEVICE_CATEGORIES = [
   {
     id: "mobile",
     name: "Mobile",

@@ -1,3 +1,5 @@
+import { captureCard } from "./screenshot.js";
+
 const IFRAME_SANDBOX =
   "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox";
 
@@ -68,12 +70,23 @@ export class DeviceGrid {
     const sizeReadout = document.createElement("span");
     sizeReadout.className = "device-size-readout";
 
+    const buttonGroup = document.createElement("div");
+    buttonGroup.className = "device-controls-buttons";
+
     const rotateBtn = document.createElement("button");
     rotateBtn.type = "button";
-    rotateBtn.className = "btn icon-btn orientation-toggle";
+    rotateBtn.className = "btn icon-btn device-icon-btn";
     rotateBtn.textContent = "⟳";
 
-    controls.append(sizeReadout, rotateBtn);
+    const screenshotBtn = document.createElement("button");
+    screenshotBtn.type = "button";
+    screenshotBtn.className = "btn icon-btn device-icon-btn";
+    screenshotBtn.textContent = "⬇";
+    screenshotBtn.title = "Save screenshot";
+    screenshotBtn.setAttribute("aria-label", "Save screenshot");
+
+    buttonGroup.append(rotateBtn, screenshotBtn);
+    controls.append(sizeReadout, buttonGroup);
 
     const viewport = document.createElement("div");
     viewport.className = "frame-viewport";
@@ -96,6 +109,7 @@ export class DeviceGrid {
       select,
       sizeReadout,
       rotateBtn,
+      screenshotBtn,
       loadTimer: null,
     };
 
@@ -119,6 +133,14 @@ export class DeviceGrid {
       this._updateOrientationUI(entry);
       this.relayout();
       this.onOrientationChange?.(category.id, entry.orientation);
+    });
+
+    screenshotBtn.addEventListener("click", async () => {
+      try {
+        await captureCard(entry);
+      } catch (error) {
+        console.warn(`Sense: couldn't capture a screenshot of ${entry.currentDevice.name}.`, error);
+      }
     });
 
     return entry;

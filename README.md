@@ -18,6 +18,7 @@ A Chrome extension for developers: preview the site you're on across mobile, tab
 5. The ⟳ button on each card flips that card between portrait and landscape — it's a per-card preference, so it carries over even if you then switch to a different device in the same category.
 6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames.
 7. Reopening Sense (icon, shortcut, or a fresh tab with nothing to preview) restores the last URL and the last device + orientation picked per category — it doesn't start from scratch.
+8. The ⬇ button on each card saves just that device's preview as a PNG — it scrolls the card into view first, screenshots the tab, and crops to that card, so it works even if the card isn't currently on screen (as long as it can fit within the browser window at all).
 
 If the icon is clicked on a page that isn't `http(s)://` (like `chrome://` pages or a blank new tab), Sense falls back to your last-previewed URL if there is one, or an empty URL bar otherwise.
 
@@ -58,7 +59,8 @@ sense/
 │   │   ├── main.js            # entry point: wires the toolbar UI to DeviceGrid, restores state
 │   │   ├── devices.js         # default device data (fallback/reset source of truth)
 │   │   ├── url.js             # URL parsing/validation
-│   │   └── device-grid.js     # DeviceGrid: builds, scales, loads, reloads, times out frames
+│   │   ├── device-grid.js     # DeviceGrid: builds, scales, loads, reloads, times out frames
+│   │   └── screenshot.js      # captures, crops to one card, and downloads a PNG
 │   └── options/                # the "customize device list" page
 │       ├── options.html
 │       ├── options.css        # imports shared/theme.css

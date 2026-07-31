@@ -169,7 +169,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-.orientation-toggle {
+.device-controls-buttons {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.device-icon-btn {
   font-size: 16px;
   line-height: 1;
 }

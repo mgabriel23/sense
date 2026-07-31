@@ -5,7 +5,6 @@ import { DeviceGrid } from "./device-grid.js";
 const urlForm = document.getElementById("url-form");
 const urlInput = document.getElementById("url-input");
 const urlError = document.getElementById("url-error");
-const emptyState = document.getElementById("empty-state");
 const gridEl = document.getElementById("grid");
 const reloadBtn = document.getElementById("reload-all");
 
@@ -29,7 +28,6 @@ function setUrl(url) {
   history.replaceState(null, "", next.toString());
 
   urlInput.value = currentUrl;
-  emptyState.hidden = Boolean(currentUrl);
   gridEl.hidden = !currentUrl;
   reloadBtn.disabled = !currentUrl;
 

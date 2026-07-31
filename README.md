@@ -13,8 +13,9 @@ A Chrome extension for developers: preview the site you're on across mobile, tab
 
 1. Go to any `http(s)://` site.
 2. Click the Sense toolbar icon.
-3. A new tab opens showing the page rendered at four sizes at once: Mobile (375×667), Tablet (768×1024), Laptop (1366×768), Desktop (1920×1080).
-4. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames.
+3. A new tab opens showing the page rendered at four sizes at once: Mobile, Tablet, Laptop, and Desktop, each defaulting to a common size (375×667, 768×1024, 1366×768, 1920×1080).
+4. Each card has a dropdown to swap in a specific device within that category (e.g. Mobile → iPhone 14, Pixel 7, Galaxy S21) without changing the others.
+5. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames.
 
 If the icon is clicked on a page that isn't `http(s)://` (like `chrome://` pages or a blank new tab), Sense opens with an empty URL bar so you can type one in manually.
 
@@ -26,7 +27,7 @@ Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ance
 
 - No scroll/click sync across frames yet — each preview is independent.
 - Sites that redirect out of iframes via JavaScript (rather than headers) are blocked by the iframe `sandbox` attribute in most cases, but a few aggressive scripts may still show a blank frame.
-- Device sizes are fixed presets for now — custom sizes and an options page are a natural next step.
+- Device lists are fixed per category for now — custom sizes and a persisted "last used device" are a natural next step.
 
 ## Project structure
 

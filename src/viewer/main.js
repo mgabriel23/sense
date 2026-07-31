@@ -1,4 +1,4 @@
-import { DEVICES } from "./devices.js";
+import { DEVICE_CATEGORIES } from "./devices.js";
 import { normalizeUrl } from "./url.js";
 import { DeviceGrid } from "./device-grid.js";
 
@@ -9,7 +9,7 @@ const emptyState = document.getElementById("empty-state");
 const gridEl = document.getElementById("grid");
 const reloadBtn = document.getElementById("reload-all");
 
-const grid = new DeviceGrid(gridEl, DEVICES);
+const grid = new DeviceGrid(gridEl, DEVICE_CATEGORIES);
 let currentUrl = "";
 
 function showError(message) {

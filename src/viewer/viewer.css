@@ -177,10 +177,21 @@ body {
   color: var(--color-text);
 }
 
-.device-label span {
+.device-select {
+  font: inherit;
   font-weight: 400;
-  color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  max-width: 60%;
+}
+
+.device-select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
 }
 
 .frame-viewport {

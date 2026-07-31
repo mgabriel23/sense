@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Sense — Multi-Screen Preview",
+  "version": "0.1.0",
+  "description": "Preview any website across mobile, tablet, laptop, and desktop sizes side by side, in one click.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Open Sense multi-screen view",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/index.js",
+    "type": "module"
+  },
+  "permissions": [
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}

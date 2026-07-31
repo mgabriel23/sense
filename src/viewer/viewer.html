@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sense — Multi-Screen Preview</title>
+  <link rel="stylesheet" href="viewer.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="toolbar">
+      <div class="brand">Sense</div>
+
+      <form id="url-form" class="url-form" autocomplete="off">
+        <input
+          id="url-input"
+          type="text"
+          name="url"
+          placeholder="Enter a URL, e.g. https://example.com"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button type="submit" class="btn btn-primary">View</button>
+      </form>
+
+      <div class="toolbar-actions">
+        <button id="reload-all" type="button" class="btn" title="Reload all screens" disabled>
+          Reload
+        </button>
+      </div>
+    </header>
+
+    <p id="url-error" class="url-error" hidden></p>
+
+    <main id="empty-state" class="empty-state">
+      <p>Enter a website URL above to preview it on mobile, tablet, laptop, and desktop at once.</p>
+    </main>
+
+    <main id="grid" class="grid" hidden></main>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

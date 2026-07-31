@@ -54,9 +54,14 @@
   justify-content: flex-end;
 }
 
-.url-form input {
+.url-input-wrap {
+  position: relative;
   flex: 1;
   min-width: 0;
+}
+
+.url-form input {
+  width: 100%;
   padding: var(--space-2) var(--space-3);
   font-size: 14px;
   border: 1px solid var(--color-border);
@@ -70,6 +75,45 @@
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--focus-ring);
+}
+
+.recent-urls-menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.recent-urls-menu button {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.recent-urls-menu button:hover,
+.recent-urls-menu button:focus-visible {
+  outline: none;
+  background: var(--color-bg);
 }
 
 .url-error {

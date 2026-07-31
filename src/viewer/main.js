@@ -7,6 +7,8 @@ import {
   setDeviceSelection,
   getLastUrl,
   setLastUrl,
+  getRecentUrls,
+  addRecentUrl,
 } from "../shared/storage.js";
 
 const urlForm = document.getElementById("url-form");
@@ -14,6 +16,7 @@ const urlInput = document.getElementById("url-input");
 const urlError = document.getElementById("url-error");
 const gridEl = document.getElementById("grid");
 const reloadBtn = document.getElementById("reload-all");
+const recentUrlsMenu = document.getElementById("recent-urls-menu");
 
 function showError(message) {
   urlError.textContent = message || "";
@@ -21,6 +24,35 @@ function showError(message) {
 }
 
 async function main() {
+  let recentUrls = [];
+
+  function renderRecentUrls(urls) {
+    recentUrls = urls;
+    recentUrlsMenu.innerHTML = "";
+    for (const url of urls) {
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = url;
+      button.addEventListener("click", () => {
+        hideRecentUrls();
+        setUrl(url);
+      });
+      item.appendChild(button);
+      recentUrlsMenu.appendChild(item);
+    }
+  }
+
+  function showRecentUrls() {
+    if (recentUrls.length > 0) recentUrlsMenu.hidden = false;
+  }
+
+  function hideRecentUrls() {
+    recentUrlsMenu.hidden = true;
+  }
+
+  renderRecentUrls(await getRecentUrls());
+
   const storedCatalog = await getDeviceCatalog();
   const categories = storedCatalog && storedCatalog.length ? storedCatalog : DEFAULT_DEVICE_CATEGORIES;
 
@@ -63,6 +95,7 @@ async function main() {
     if (currentUrl) {
       grid.load(currentUrl);
       setLastUrl(currentUrl);
+      addRecentUrl(currentUrl).then(renderRecentUrls);
     }
   }
 
@@ -76,7 +109,20 @@ async function main() {
     }
 
     showError("");
+    hideRecentUrls();
     setUrl(normalized);
+  });
+
+  urlInput.addEventListener("focus", showRecentUrls);
+
+  // Delayed so a click on a menu item (which blurs the input first) still
+  // registers before the menu disappears.
+  urlInput.addEventListener("blur", () => {
+    setTimeout(hideRecentUrls, 150);
+  });
+
+  urlInput.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hideRecentUrls();
   });
 
   reloadBtn.addEventListener("click", () => grid.reload());

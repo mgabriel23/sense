@@ -7,7 +7,10 @@ const KEYS = {
   DEVICE_CATALOG: "deviceCatalog",
   LAST_URL: "lastUrl",
   DEVICE_SELECTION: "deviceSelection",
+  RECENT_URLS: "recentUrls",
 };
+
+const MAX_RECENT_URLS = 8;
 
 // chrome.storage can be unavailable (e.g. the "storage" permission hasn't
 // taken effect yet because the unpacked extension was updated but not
@@ -84,4 +87,31 @@ export async function setDeviceSelection(selection) {
   } catch (error) {
     console.warn("Sense: couldn't save the device selection.", error);
   }
+}
+
+export async function getRecentUrls() {
+  if (!isStorageAvailable()) return [];
+  try {
+    const result = await chrome.storage.local.get(KEYS.RECENT_URLS);
+    return result[KEYS.RECENT_URLS] ?? [];
+  } catch (error) {
+    console.warn("Sense: couldn't read recent URLs from storage.", error);
+    return [];
+  }
+}
+
+// Moves `url` to the front of the recent-URLs list (de-duping any existing
+// entry for it) and caps the list at MAX_RECENT_URLS. Returns the updated
+// list so callers don't need a separate read to refresh their UI.
+export async function addRecentUrl(url) {
+  const current = await getRecentUrls();
+  const next = [url, ...current.filter((existing) => existing !== url)].slice(0, MAX_RECENT_URLS);
+
+  if (!isStorageAvailable()) return next;
+  try {
+    await chrome.storage.local.set({ [KEYS.RECENT_URLS]: next });
+  } catch (error) {
+    console.warn("Sense: couldn't save recent URLs.", error);
+  }
+  return next;
 }

@@ -16,7 +16,7 @@ A Chrome extension for developers: preview the site you're on across mobile, tab
 3. A new tab opens showing the page rendered at four sizes at once: Mobile, Tablet, Laptop, and Desktop, each defaulting to a common size (375×667, 768×1024, 1366×768, 1920×1080).
 4. Each card has a dropdown to swap in a specific device within that category (e.g. Mobile → iPhone 14, Pixel 7, Galaxy S21) without changing the others.
 5. The ⟳ button on each card flips that card between portrait and landscape — it's a per-card preference, so it carries over even if you then switch to a different device in the same category.
-6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames.
+6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames. Click into the URL bar to see a dropdown of your last 8 previewed URLs.
 7. Reopening Sense (icon, shortcut, or a fresh tab with nothing to preview) restores the last URL and the last device + orientation picked per category — it doesn't start from scratch.
 8. The ⬇ button on each card saves just that device's preview as a PNG — it scrolls the card into view first, screenshots the tab, and crops to that card, so it works even if the card isn't currently on screen (as long as it can fit within the browser window at all).
 
@@ -49,7 +49,8 @@ sense/
 │   ├── background/            # service worker (type: module)
 │   │   ├── index.js           # wires listeners — no logic of its own
 │   │   ├── header-rules.js    # declarativeNetRequest rule that unblocks iframing
-│   │   └── viewer-launcher.js # opens viewer.html for the clicked tab
+│   │   ├── viewer-launcher.js # opens viewer.html for the clicked tab
+│   │   └── capture.js         # captures the visible tab for screenshot.js
 │   ├── shared/                 # code used by more than one page
 │   │   ├── theme.css          # design tokens + generic .btn styles
 │   │   └── storage.js         # chrome.storage.local reads/writes (single source of key names)

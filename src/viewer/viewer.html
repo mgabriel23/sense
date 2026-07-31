@@ -11,14 +11,17 @@
       <div class="brand">Sense</div>
 
       <form id="url-form" class="url-form" autocomplete="off">
-        <input
-          id="url-input"
-          type="text"
-          name="url"
-          placeholder="Enter a website URL to preview it on mobile, tablet, laptop, and desktop at once"
-          autocomplete="off"
-          spellcheck="false"
-        />
+        <div class="url-input-wrap">
+          <input
+            id="url-input"
+            type="text"
+            name="url"
+            placeholder="Enter a website URL to preview it on mobile, tablet, laptop, and desktop at once"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <ul id="recent-urls-menu" class="recent-urls-menu" hidden></ul>
+        </div>
         <button type="submit" class="btn btn-primary">View</button>
       </form>
 

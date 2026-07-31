@@ -102,41 +102,31 @@ function generateIcon(size) {
     }
   }
 
-  // Two overlapping "screens" mark (desktop frame behind, mobile block in front)
-  // to read as "multiple device sizes" even at 16px.
+  // An original flat "TV on a stand" glyph — a screen (with an inset bezel)
+  // over a neck and a foot, all drawn from plain rectangles. Deliberately a
+  // generic retro-monitor silhouette rather than any specific device or
+  // logo, so it reads as "screens" without resembling a real brand's mark.
   const unit = size / 16;
-  const barRadius = Math.max(1, Math.round(unit * 0.4));
+  const px = (n) => Math.round(n * unit);
+  const bezel = Math.max(1, px(1));
 
+  // Screen bezel
+  fillRect(pixels, size, px(2.2), px(2.3), px(11.6), px(7.6), FG, px(1.3));
+  // Screen (cut back to the background color to read as a frame)
   fillRect(
     pixels,
     size,
-    Math.round(unit * 2),
-    Math.round(unit * 4.5),
-    Math.round(unit * 12),
-    Math.round(unit * 6.5),
-    FG,
-    barRadius
-  );
-  fillRect(
-    pixels,
-    size,
-    Math.round(unit * 2) + Math.max(1, Math.round(unit * 0.9)),
-    Math.round(unit * 4.5) + Math.max(1, Math.round(unit * 0.9)),
-    Math.round(unit * 12) - Math.max(2, Math.round(unit * 1.8)),
-    Math.round(unit * 6.5) - Math.max(2, Math.round(unit * 1.8)),
+    px(2.2) + bezel,
+    px(2.3) + bezel,
+    px(11.6) - bezel * 2,
+    px(7.6) - bezel * 2,
     BG,
-    Math.max(0, barRadius - 1)
+    Math.max(0, px(0.6))
   );
-  fillRect(
-    pixels,
-    size,
-    Math.round(unit * 9.5),
-    Math.round(unit * 8),
-    Math.round(unit * 4.5),
-    Math.round(unit * 6.5),
-    FG,
-    barRadius
-  );
+  // Neck
+  fillRect(pixels, size, px(7.2), px(9.9), px(1.6), px(1.2), FG);
+  // Foot
+  fillRect(pixels, size, px(5.2), px(11.1), px(5.6), px(1), FG, Math.max(0, px(0.4)));
 
   const buf = Buffer.from(pixels);
 

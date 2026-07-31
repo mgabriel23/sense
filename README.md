@@ -33,6 +33,19 @@ Right-click the Sense icon → **Options** (or `chrome://extensions` → Sense �
 
 Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ancestors`) that block being shown in an iframe at all. Sense uses a `declarativeNetRequest` rule to strip those headers, scoped with `initiatorDomains` to only the sub-frames created by Sense's own viewer tab — it has no effect on iframes anywhere else, including your normal browsing in other tabs.
 
+## Publishing to the Chrome Web Store
+
+1. Create a one-time developer account at the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) ($5 fee, paid once, ever).
+2. Zip the contents of this folder so `manifest.json` sits at the **root** of the zip, not nested in a subfolder — the most common submission mistake. Excluding `.git/`, `tools/`, and `README.md` from the zip is optional; Chrome ignores files it doesn't recognize.
+3. In the dashboard: **New Item** → upload the zip.
+4. Fill in the store listing — a short description (the one in `manifest.json` works as-is), at least one screenshot (the four-device grid in action is the obvious choice), and a category (Developer Tools fits).
+5. Fill in the **Privacy practices** tab — required given the `<all_urls>` host permission, even though Sense collects nothing. You'll need:
+   - A one-sentence **single purpose** description (e.g. "Preview a website across multiple device sizes at once").
+   - A justification for each permission: `declarativeNetRequestWithHostAccess` + `<all_urls>` (needed to strip iframe-blocking headers so arbitrary sites can be previewed) and `storage` (remembers the user's last URL, device/orientation choices, and category visibility locally).
+   - A **privacy policy URL** — a one-paragraph hosted page (a GitHub Gist works) stating that Sense doesn't collect, transmit, or store any data outside the user's own browser is enough.
+6. Submit for review. Broad host permissions are the most common rejection trigger — if rejected, the feedback will point at exactly which justification needs more detail; fix and resubmit the same package.
+7. For updates later: bump `version` in `manifest.json`, re-zip, upload as a new package in the same dashboard item, resubmit.
+
 ## Known limitations (MVP)
 
 - No scroll/click sync across frames — each preview is independent. (Tried a scroll-sync implementation via injected postMessage bridges; in practice it felt unpredictable across real sites, so it was dropped rather than shipped.)
@@ -45,7 +58,7 @@ Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ance
 ```
 sense/
 ├── manifest.json              # MV3 config: permissions, icons, entry points, commands
-├── icons/                     # toolbar + store icons (16/48/128), generated — see tools/
+├── icons/                     # toolbar + store icons (16/48/128) — an original monitor-on-a-stand glyph, see tools/
 ├── src/
 │   ├── background/            # service worker (type: module)
 │   │   ├── index.js           # wires listeners — no logic of its own
@@ -68,7 +81,7 @@ sense/
 │       ├── options.css        # imports shared/theme.css
 │       └── options.js         # add/remove/reset devices per category, persists via storage.js
 └── tools/
-    └── generate-icons.js      # regenerates icons/*.png from source (no binary-only assets)
+    └── generate-icons.js      # draws the icon from plain rectangles and encodes the PNGs by hand — no source image, no dependencies
 ```
 
 Each file has one job — e.g. to change default device sizes, edit only `devices.js`; to change how frames get unblocked, edit only `header-rules.js`; to change what's persisted, edit only `shared/storage.js`.

@@ -131,13 +131,62 @@
   }
 }
 
+.category-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 640px) {
+  .category-toggles {
+    padding: var(--space-3) var(--space-5);
+  }
+}
+
+.category-toggle {
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.category-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.category-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.category-toggle[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface));
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 /* Grid — mobile-first: minmax(min(280px, 100%), 1fr) guarantees a single
-   column with no horizontal overflow on narrow viewports; auto-fit expands
-   to multiple columns as space allows. Gap/padding grow at wider sizes. */
+   column with no horizontal overflow on narrow viewports; the column count
+   grows as space allows. auto-fill (not auto-fit) deliberately: auto-fit
+   would collapse any track left empty by a hidden category and hand its
+   space to the remaining cards, stretching them — auto-fill keeps those
+   tracks reserved instead, so hiding a category leaves blank space rather
+   than resizing the cards still showing. Gap/padding grow at wider sizes. */
 .grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: var(--space-4);
   align-items: start;
   padding: var(--space-4);

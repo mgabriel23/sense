@@ -9,6 +9,8 @@ import {
   setLastUrl,
   getRecentUrls,
   addRecentUrl,
+  getVisibleCategories,
+  setVisibleCategories,
 } from "../shared/storage.js";
 
 const urlForm = document.getElementById("url-form");
@@ -17,6 +19,7 @@ const urlError = document.getElementById("url-error");
 const gridEl = document.getElementById("grid");
 const reloadBtn = document.getElementById("reload-all");
 const recentUrlsMenu = document.getElementById("recent-urls-menu");
+const categoryTogglesEl = document.getElementById("category-toggles");
 
 function showError(message) {
   urlError.textContent = message || "";
@@ -73,6 +76,37 @@ async function main() {
   for (const [categoryId, saved] of Object.entries(storedSelection)) {
     if (saved.deviceId) grid.selectDevice(categoryId, saved.deviceId);
     if (saved.orientation) grid.selectOrientation(categoryId, saved.orientation);
+  }
+
+  const storedVisible = await getVisibleCategories();
+  let visibleIds = new Set(storedVisible ?? categories.map((c) => c.id));
+  grid.setVisibleCategories(storedVisible);
+
+  categoryTogglesEl.innerHTML = "";
+  for (const category of categories) {
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.className = "category-toggle";
+    toggleBtn.textContent = category.name;
+    toggleBtn.setAttribute("aria-pressed", String(visibleIds.has(category.id)));
+
+    toggleBtn.addEventListener("click", () => {
+      const next = new Set(visibleIds);
+      if (next.has(category.id)) {
+        if (next.size === 1) return; // keep at least one category visible
+        next.delete(category.id);
+      } else {
+        next.add(category.id);
+      }
+      visibleIds = next;
+      toggleBtn.setAttribute("aria-pressed", String(next.has(category.id)));
+
+      const idsArray = categories.map((c) => c.id).filter((id) => next.has(id));
+      grid.setVisibleCategories(idsArray);
+      setVisibleCategories(idsArray);
+    });
+
+    categoryTogglesEl.appendChild(toggleBtn);
   }
 
   let currentUrl = "";

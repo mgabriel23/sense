@@ -8,6 +8,7 @@ const KEYS = {
   LAST_URL: "lastUrl",
   DEVICE_SELECTION: "deviceSelection",
   RECENT_URLS: "recentUrls",
+  VISIBLE_CATEGORIES: "visibleCategories",
 };
 
 const MAX_RECENT_URLS = 8;
@@ -114,4 +115,27 @@ export async function addRecentUrl(url) {
     console.warn("Sense: couldn't save recent URLs.", error);
   }
   return next;
+}
+
+// null means "no preference saved yet" — every category is shown. Once the
+// user hides at least one, this becomes the explicit list of category ids
+// still visible.
+export async function getVisibleCategories() {
+  if (!isStorageAvailable()) return null;
+  try {
+    const result = await chrome.storage.local.get(KEYS.VISIBLE_CATEGORIES);
+    return result[KEYS.VISIBLE_CATEGORIES] ?? null;
+  } catch (error) {
+    console.warn("Sense: couldn't read visible categories from storage.", error);
+    return null;
+  }
+}
+
+export async function setVisibleCategories(categoryIds) {
+  if (!isStorageAvailable()) return;
+  try {
+    await chrome.storage.local.set({ [KEYS.VISIBLE_CATEGORIES]: categoryIds });
+  } catch (error) {
+    console.warn("Sense: couldn't save visible categories.", error);
+  }
 }

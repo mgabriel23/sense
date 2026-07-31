@@ -19,6 +19,7 @@ A Chrome extension for developers: preview the site you're on across mobile, tab
 6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames. Click into the URL bar to see a dropdown of your last 8 previewed URLs.
 7. Reopening Sense (icon, shortcut, or a fresh tab with nothing to preview) restores the last URL and the last device + orientation picked per category — it doesn't start from scratch.
 8. The ⬇ button on each card saves just that device's preview as a PNG — it scrolls the card into view first, screenshots the tab, and crops to that card, so it works even if the card isn't currently on screen (as long as it can fit within the browser window at all).
+9. The row of pills below the toolbar (Mobile, Tablet, Laptop, Desktop) toggles which categories are shown — e.g. turn off Laptop and Desktop to preview only Mobile and Tablet. At least one stays on. This choice is remembered for next time.
 
 If the icon is clicked on a page that isn't `http(s)://` (like `chrome://` pages or a blank new tab), Sense falls back to your last-previewed URL if there is one, or an empty URL bar otherwise.
 

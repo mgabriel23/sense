@@ -185,6 +185,21 @@ export class DeviceGrid {
     this.relayout();
   }
 
+  // Shows only the categories in `categoryIds` (an array of category ids);
+  // pass null/undefined to show all of them. Sets display via inline style
+  // rather than the `hidden` attribute — `hidden` only hides through the
+  // browser's default `[hidden] { display: none }` rule, which our own
+  // `.device-card { display: flex }` (an author rule) outright overrides
+  // regardless of specificity, so it wouldn't actually stick.
+  setVisibleCategories(categoryIds) {
+    const visible = categoryIds ? new Set(categoryIds) : null;
+    for (const entry of this.entries) {
+      const isVisible = !visible || visible.has(entry.category.id);
+      entry.card.style.display = isVisible ? "" : "none";
+    }
+    this.relayout();
+  }
+
   // Recomputes each frame's scale from its card's current width, using
   // whichever device/orientation is currently selected for that category.
   // Call on resize, on device/orientation change, and whenever a frame is

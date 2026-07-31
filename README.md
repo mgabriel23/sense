@@ -33,9 +33,10 @@ Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ance
 
 ## Known limitations (MVP)
 
-- No scroll/click sync across frames yet — each preview is independent.
+- No scroll/click sync across frames — each preview is independent. (Tried a scroll-sync implementation via injected postMessage bridges; in practice it felt unpredictable across real sites, so it was dropped rather than shipped.)
 - Sites that redirect out of iframes via JavaScript (rather than headers) are blocked by the iframe `sandbox` attribute in most cases, but a few aggressive scripts may still show a blank frame until the load-timeout message kicks in.
 - Frames only emulate CSS viewport width/height — not touch input, device pixel ratio, or `pointer: coarse`, so code that branches on touch capability won't behave differently inside the "Mobile" frame.
+- DevTools flags each preview frame with "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing." This is a generic warning Chrome shows for that attribute combination on *any* iframe — it doesn't check whether the frame is actually cross-origin from its parent. Since every preview frame's origin (the previewed site) is never the same as Sense's own `chrome-extension://` origin, the escape it's warning about doesn't apply here. Dropping `allow-same-origin` would silence it, but at the cost of previewed sites losing access to their own cookies/localStorage (every preview would render logged-out) — not a trade worth making just to clear a console message, so it's left as a known, inapplicable warning.
 
 ## Project structure
 

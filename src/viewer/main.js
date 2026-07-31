@@ -27,14 +27,20 @@ async function main() {
   const grid = new DeviceGrid(gridEl, categories, {
     onDeviceChange: async (categoryId, deviceId) => {
       const selection = await getDeviceSelection();
-      selection[categoryId] = deviceId;
+      selection[categoryId] = { ...selection[categoryId], deviceId };
+      setDeviceSelection(selection);
+    },
+    onOrientationChange: async (categoryId, orientation) => {
+      const selection = await getDeviceSelection();
+      selection[categoryId] = { ...selection[categoryId], orientation };
       setDeviceSelection(selection);
     },
   });
 
   const storedSelection = await getDeviceSelection();
-  for (const [categoryId, deviceId] of Object.entries(storedSelection)) {
-    grid.selectDevice(categoryId, deviceId);
+  for (const [categoryId, saved] of Object.entries(storedSelection)) {
+    if (saved.deviceId) grid.selectDevice(categoryId, saved.deviceId);
+    if (saved.orientation) grid.selectOrientation(categoryId, saved.orientation);
   }
 
   let currentUrl = "";

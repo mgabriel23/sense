@@ -58,11 +58,19 @@ export async function setLastUrl(url) {
   }
 }
 
+// Per category: { deviceId, orientation }. Normalizes on the way out so
+// callers never need to know that early versions of Sense saved a bare
+// deviceId string here instead of an object.
 export async function getDeviceSelection() {
   if (!isStorageAvailable()) return {};
   try {
     const result = await chrome.storage.local.get(KEYS.DEVICE_SELECTION);
-    return result[KEYS.DEVICE_SELECTION] ?? {};
+    const raw = result[KEYS.DEVICE_SELECTION] ?? {};
+    const normalized = {};
+    for (const [categoryId, value] of Object.entries(raw)) {
+      normalized[categoryId] = typeof value === "string" ? { deviceId: value } : value;
+    }
+    return normalized;
   } catch (error) {
     console.warn("Sense: couldn't read the device selection from storage.", error);
     return {};

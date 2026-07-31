@@ -8,17 +8,34 @@ const IFRAME_SANDBOX =
 // wait before telling the user instead of showing "Loading…" indefinitely.
 const LOAD_TIMEOUT_MS = 8000;
 
+// A device's stored width/height is its natural orientation (e.g. a phone is
+// authored portrait, a desktop landscape). Toggling orientation swaps the two
+// only when the requested orientation differs from that natural one.
+function nativeOrientation(device) {
+  return device.width <= device.height ? "portrait" : "landscape";
+}
+
+function effectiveDimensions(device, orientation) {
+  if (nativeOrientation(device) === orientation) {
+    return { width: device.width, height: device.height };
+  }
+  return { width: device.height, height: device.width };
+}
+
 // Renders one scaled preview frame per category (Mobile/Tablet/Laptop/Desktop)
-// and keeps it sized to fit its grid cell. Each card also has a dropdown to pick
-// a specific device within that category; its first device is the default size.
+// and keeps it sized to fit its grid cell. Each card has a dropdown to pick a
+// specific device within that category (its first device is the default) and
+// a rotate button to flip that card between portrait/landscape — orientation
+// is a per-card preference, so it carries over even when the device is swapped.
 // Iframes are built at zero size and only measured/sized during relayout(), so
 // the grid's own track width is never inflated by a device's native (e.g. 1920px)
 // dimensions before we've had a chance to scale it.
 export class DeviceGrid {
-  constructor(container, categories, { onDeviceChange } = {}) {
+  constructor(container, categories, { onDeviceChange, onOrientationChange } = {}) {
     this.container = container;
     this.categories = categories;
     this.onDeviceChange = onDeviceChange;
+    this.onOrientationChange = onOrientationChange;
     this.entries = this.categories.map((category) => this._createEntry(category));
   }
 
@@ -45,6 +62,19 @@ export class DeviceGrid {
 
     label.append(nameSpan, select);
 
+    const controls = document.createElement("div");
+    controls.className = "device-controls";
+
+    const sizeReadout = document.createElement("span");
+    sizeReadout.className = "device-size-readout";
+
+    const rotateBtn = document.createElement("button");
+    rotateBtn.type = "button";
+    rotateBtn.className = "btn icon-btn orientation-toggle";
+    rotateBtn.textContent = "⟳";
+
+    controls.append(sizeReadout, rotateBtn);
+
     const viewport = document.createElement("div");
     viewport.className = "frame-viewport";
 
@@ -53,20 +83,24 @@ export class DeviceGrid {
     iframe.setAttribute("referrerpolicy", "no-referrer");
 
     viewport.appendChild(iframe);
-    card.append(label, viewport);
+    card.append(label, controls, viewport);
     this.container.appendChild(card);
 
     const entry = {
       category,
       currentDevice: category.devices[0],
+      orientation: nativeOrientation(category.devices[0]),
       card,
       viewport,
       iframe,
       select,
+      sizeReadout,
+      rotateBtn,
       loadTimer: null,
     };
 
     iframe.title = `${entry.currentDevice.name} preview`;
+    this._updateOrientationUI(entry);
 
     iframe.addEventListener("load", () => {
       clearTimeout(entry.loadTimer);
@@ -80,6 +114,13 @@ export class DeviceGrid {
       this.onDeviceChange?.(category.id, device.id);
     });
 
+    rotateBtn.addEventListener("click", () => {
+      entry.orientation = entry.orientation === "portrait" ? "landscape" : "portrait";
+      this._updateOrientationUI(entry);
+      this.relayout();
+      this.onOrientationChange?.(category.id, entry.orientation);
+    });
+
     return entry;
   }
 
@@ -87,7 +128,18 @@ export class DeviceGrid {
     entry.currentDevice = device;
     entry.select.value = device.id;
     entry.iframe.title = `${device.name} preview`;
+    this._updateOrientationUI(entry);
     this.relayout();
+  }
+
+  _updateOrientationUI(entry) {
+    const dims = effectiveDimensions(entry.currentDevice, entry.orientation);
+    entry.sizeReadout.textContent = `${dims.width} × ${dims.height}`;
+
+    const nextOrientation = entry.orientation === "portrait" ? "landscape" : "portrait";
+    const actionLabel = `Switch to ${nextOrientation}`;
+    entry.rotateBtn.setAttribute("aria-label", actionLabel);
+    entry.rotateBtn.title = actionLabel;
   }
 
   // Selects `deviceId` within `categoryId` without notifying onDeviceChange —
@@ -101,19 +153,31 @@ export class DeviceGrid {
     this._applyDevice(entry, device);
   }
 
+  // Restores a saved orientation for `categoryId` without notifying
+  // onOrientationChange. No-ops on an invalid category/orientation.
+  selectOrientation(categoryId, orientation) {
+    const entry = this.entries.find((e) => e.category.id === categoryId);
+    if (!entry || (orientation !== "portrait" && orientation !== "landscape")) return;
+    entry.orientation = orientation;
+    this._updateOrientationUI(entry);
+    this.relayout();
+  }
+
   // Recomputes each frame's scale from its card's current width, using
-  // whichever device is currently selected for that category. Call on
-  // resize, on device-select change, and whenever a frame is (re)loaded.
+  // whichever device/orientation is currently selected for that category.
+  // Call on resize, on device/orientation change, and whenever a frame is
+  // (re)loaded.
   relayout() {
-    for (const { currentDevice, card, viewport, iframe } of this.entries) {
+    for (const { currentDevice, orientation, card, viewport, iframe } of this.entries) {
+      const dims = effectiveDimensions(currentDevice, orientation);
       const available = card.clientWidth;
-      const scale = available > 0 ? Math.min(1, available / currentDevice.width) : 1;
+      const scale = available > 0 ? Math.min(1, available / dims.width) : 1;
 
-      viewport.style.width = `${Math.round(currentDevice.width * scale)}px`;
-      viewport.style.height = `${Math.round(currentDevice.height * scale)}px`;
+      viewport.style.width = `${Math.round(dims.width * scale)}px`;
+      viewport.style.height = `${Math.round(dims.height * scale)}px`;
 
-      iframe.style.width = `${currentDevice.width}px`;
-      iframe.style.height = `${currentDevice.height}px`;
+      iframe.style.width = `${dims.width}px`;
+      iframe.style.height = `${dims.height}px`;
       iframe.style.transform = `scale(${scale})`;
     }
   }

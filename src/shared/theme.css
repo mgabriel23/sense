@@ -121,3 +121,15 @@ body {
   box-shadow: var(--shadow-cta);
   transform: translateY(0);
 }
+
+/* Compact square button variant for icon-only actions (remove row, rotate, etc). */
+.icon-btn {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0 var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}

@@ -18,6 +18,11 @@ const PHONE_PORTRAIT_ICON =
 const PHONE_LANDSCAPE_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"></rect><line x1="6" y1="11" x2="6" y2="13"></line></svg>';
 
+// Camera glyph for the screenshot button — reads as "capture" at a glance,
+// rather than the generic download arrow (⬇) it replaces.
+const CAMERA_ICON =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>';
+
 // A device's stored width/height is its natural orientation (e.g. a phone is
 // authored portrait, a desktop landscape). Toggling orientation swaps the two
 // only when the requested orientation differs from that natural one.
@@ -88,7 +93,7 @@ export class DeviceGrid {
     const screenshotBtn = document.createElement("button");
     screenshotBtn.type = "button";
     screenshotBtn.className = "btn icon-btn device-icon-btn";
-    screenshotBtn.textContent = "⬇";
+    screenshotBtn.innerHTML = CAMERA_ICON;
     screenshotBtn.title = "Save screenshot";
     screenshotBtn.setAttribute("aria-label", "Save screenshot");
 

@@ -21,6 +21,11 @@ const reloadBtn = document.getElementById("reload-all");
 const recentUrlsMenu = document.getElementById("recent-urls-menu");
 const categoryTogglesEl = document.getElementById("category-toggles");
 
+// Checkmark drawn inside each category pill's leading indicator box — makes
+// the pill read as a checkbox-style on/off control rather than just a color change.
+const CHECK_ICON =
+  '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
 function showError(message) {
   urlError.textContent = message || "";
   urlError.hidden = !message;
@@ -87,7 +92,17 @@ async function main() {
     const toggleBtn = document.createElement("button");
     toggleBtn.type = "button";
     toggleBtn.className = "category-toggle";
-    toggleBtn.textContent = category.name;
+
+    const check = document.createElement("span");
+    check.className = "category-toggle-check";
+    check.setAttribute("aria-hidden", "true");
+    check.innerHTML = CHECK_ICON;
+
+    const label = document.createElement("span");
+    label.className = "category-toggle-label";
+    label.textContent = category.name;
+
+    toggleBtn.append(check, label);
     toggleBtn.setAttribute("aria-pressed", String(visibleIds.has(category.id)));
 
     toggleBtn.addEventListener("click", () => {

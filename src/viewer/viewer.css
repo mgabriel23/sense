@@ -131,23 +131,49 @@
   }
 }
 
-.category-toggles {
+.category-toggles-row {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-2) var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
 }
 
 @media (min-width: 640px) {
-  .category-toggles {
+  .category-toggles-row {
     padding: var(--space-3) var(--space-5);
   }
 }
 
+.category-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Pushed to the far right of the row via auto margin, explaining what the
+   pills next to it do without needing a tooltip or first-run onboarding. */
+.category-toggles-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.category-toggles-hint svg {
+  flex-shrink: 0;
+}
+
 .category-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   min-height: 32px;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
   font-size: 13px;
   font-weight: 500;
   border-radius: 999px;
@@ -156,7 +182,7 @@
   color: var(--color-text-muted);
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast),
-    color var(--transition-fast);
+    color var(--transition-fast), transform var(--transition-fast);
 }
 
 .category-toggle:hover {
@@ -164,9 +190,33 @@
   color: var(--color-primary);
 }
 
+.category-toggle:hover .category-toggle-check {
+  border-color: var(--color-primary);
+}
+
+.category-toggle:active {
+  transform: scale(0.95);
+}
+
 .category-toggle:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+/* The checkbox-style indicator is what actually sells "this is toggleable" —
+   an empty box reads as unchecked, independent of the pill's own color. */
+.category-toggle-check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid var(--color-border);
+  color: transparent;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform var(--transition-fast);
 }
 
 .category-toggle[aria-pressed="true"] {
@@ -174,6 +224,13 @@
   border-color: var(--color-primary);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+.category-toggle[aria-pressed="true"] .category-toggle-check {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  transform: scale(1.05);
 }
 
 /* Grid — mobile-first: minmax(min(280px, 100%), 1fr) guarantees a single

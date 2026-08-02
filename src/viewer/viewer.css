@@ -192,6 +192,14 @@
   padding: var(--space-4);
 }
 
+/* `display: grid` above is an author rule, so on its own it beats the
+   browser's default `[hidden] { display: none }` regardless of specificity
+   (same pitfall noted for .device-card in device-grid.js) — this raises the
+   specificity so main.js's `gridEl.hidden = true` actually hides the grid. */
+.grid[hidden] {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .grid {
     gap: var(--space-5);

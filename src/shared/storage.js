@@ -9,6 +9,7 @@ const KEYS = {
   DEVICE_SELECTION: "deviceSelection",
   RECENT_URLS: "recentUrls",
   VISIBLE_CATEGORIES: "visibleCategories",
+  THEME: "theme",
 };
 
 const MAX_RECENT_URLS = 8;
@@ -137,5 +138,28 @@ export async function setVisibleCategories(categoryIds) {
     await chrome.storage.local.set({ [KEYS.VISIBLE_CATEGORIES]: categoryIds });
   } catch (error) {
     console.warn("Sense: couldn't save visible categories.", error);
+  }
+}
+
+// null means "no explicit choice yet" — the OS-level prefers-color-scheme
+// setting drives the theme instead. Once the user picks one via the toolbar
+// toggle, it's "light" or "dark" and overrides the OS setting from then on.
+export async function getTheme() {
+  if (!isStorageAvailable()) return null;
+  try {
+    const result = await chrome.storage.local.get(KEYS.THEME);
+    return result[KEYS.THEME] ?? null;
+  } catch (error) {
+    console.warn("Sense: couldn't read the theme from storage.", error);
+    return null;
+  }
+}
+
+export async function setTheme(theme) {
+  if (!isStorageAvailable()) return;
+  try {
+    await chrome.storage.local.set({ [KEYS.THEME]: theme });
+  } catch (error) {
+    console.warn("Sense: couldn't save the theme.", error);
   }
 }

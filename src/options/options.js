@@ -1,5 +1,6 @@
 import { DEFAULT_DEVICE_CATEGORIES } from "../viewer/devices.js";
 import { getDeviceCatalog, setDeviceCatalog } from "../shared/storage.js";
+import { applyStoredTheme } from "../shared/theme.js";
 
 const MIN_DIMENSION = 1;
 const MAX_DIMENSION = 10000;
@@ -188,6 +189,8 @@ resetAllBtn.addEventListener("click", () => {
 });
 
 async function main() {
+  await applyStoredTheme();
+
   const stored = await getDeviceCatalog();
   catalog = stored && stored.length ? stored : structuredClone(DEFAULT_DEVICE_CATEGORIES);
   render();

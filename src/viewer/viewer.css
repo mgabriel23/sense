@@ -56,7 +56,18 @@
 .toolbar-actions {
   grid-area: reload;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Square variant sized to match the toolbar's other controls (View, Reload)
+   exactly, rather than device-card icon buttons' smaller 32px. */
+.toolbar-icon-btn {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+  font-size: 16px;
 }
 
 .url-input-wrap {

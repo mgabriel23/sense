@@ -57,7 +57,11 @@
   --shadow-cta: 0 2px 8px color-mix(in srgb, var(--color-accent) 45%, transparent);
   --shadow-cta-hover: 0 6px 18px color-mix(in srgb, var(--color-accent) 55%, transparent);
 
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  /* A translucent single-color ring reads at roughly 1.5–1.9:1 against
+     these backgrounds — well under the 3:1 WCAG 1.4.11 non-text contrast
+     minimum for UI-state indicators. A surface-colored gap plus a fully
+     opaque accent ring measures 5.8:1 (light) / 8.6:1 (dark) instead. */
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
 
   /* Motion — one easing voice; durations split into quick (the only one this
      app currently uses) and slow (kept available for larger reveals later). */

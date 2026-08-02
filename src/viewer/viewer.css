@@ -81,11 +81,21 @@
   min-height: 40px;
   padding: var(--space-2) var(--space-3);
   font-size: 14px;
-  border: 1px solid var(--color-line);
+  /* --color-ink-soft, not the decorative --color-line hairline: this
+     input's background matches the page behind it almost exactly, so its
+     border is effectively the only way to perceive its boundary — that
+     needs the 3:1 WCAG 1.4.11 minimum, which --color-line (~1.4:1) misses. */
+  border: 1px solid var(--color-ink-soft);
   border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-ink);
   transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out);
+}
+
+.url-form input::placeholder {
+  /* Explicit rather than left to the browser's UA default, which isn't
+     guaranteed to clear 4.5:1 against --color-bg in either theme. */
+  color: var(--color-ink-soft);
 }
 
 .url-form input:focus-visible {
@@ -221,7 +231,12 @@
 }
 
 /* The checkbox-style indicator is what actually sells "this is toggleable" —
-   an empty box reads as unchecked, independent of the pill's own color. */
+   an empty box reads as unchecked, independent of the pill's own color.
+   Uses --color-ink-soft rather than the decorative --color-line hairline:
+   in the unchecked state this border is the *only* affordance that a
+   checkbox exists here, so it needs the 3:1 WCAG 1.4.11 non-text contrast
+   minimum for UI-state indicators — --color-line measures ~1.4:1 against
+   the surface, --color-ink-soft measures 6.1:1+ in both themes. */
 .category-toggle-check {
   flex-shrink: 0;
   display: inline-flex;
@@ -230,7 +245,7 @@
   width: 16px;
   height: 16px;
   border-radius: 5px;
-  border: 1.5px solid var(--color-line);
+  border: 1.5px solid var(--color-ink-soft);
   color: transparent;
   transition: background-color var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out),
     color var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
@@ -246,7 +261,7 @@
 .category-toggle[aria-pressed="true"] .category-toggle-check {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   transform: scale(1.05);
 }
 
@@ -316,7 +331,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--color-ink-soft);
   background: var(--color-bg);
-  border: 1px solid var(--color-line);
+  border: 1px solid var(--color-ink-soft);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
   max-width: 60%;

@@ -10,6 +10,14 @@ const IFRAME_SANDBOX =
 // wait before telling the user instead of showing "Loading…" indefinitely.
 const LOAD_TIMEOUT_MS = 8000;
 
+// Phone glyphs for the orientation button — the icon itself reflects the
+// card's current orientation (rather than a generic rotate/reload arrow, which
+// reads as "reload this frame" next to the toolbar's actual Reload button).
+const PHONE_PORTRAIT_ICON =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"></rect><line x1="11" y1="18" x2="13" y2="18"></line></svg>';
+const PHONE_LANDSCAPE_ICON =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"></rect><line x1="6" y1="11" x2="6" y2="13"></line></svg>';
+
 // A device's stored width/height is its natural orientation (e.g. a phone is
 // authored portrait, a desktop landscape). Toggling orientation swaps the two
 // only when the requested orientation differs from that natural one.
@@ -76,7 +84,6 @@ export class DeviceGrid {
     const rotateBtn = document.createElement("button");
     rotateBtn.type = "button";
     rotateBtn.className = "btn icon-btn device-icon-btn";
-    rotateBtn.textContent = "⟳";
 
     const screenshotBtn = document.createElement("button");
     screenshotBtn.type = "button";
@@ -157,6 +164,9 @@ export class DeviceGrid {
   _updateOrientationUI(entry) {
     const dims = effectiveDimensions(entry.currentDevice, entry.orientation);
     entry.sizeReadout.textContent = `${dims.width} × ${dims.height}`;
+
+    entry.rotateBtn.innerHTML =
+      entry.orientation === "portrait" ? PHONE_PORTRAIT_ICON : PHONE_LANDSCAPE_ICON;
 
     const nextOrientation = entry.orientation === "portrait" ? "landscape" : "portrait";
     const actionLabel = `Switch to ${nextOrientation}`;

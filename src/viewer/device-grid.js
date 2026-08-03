@@ -69,6 +69,7 @@ export class DeviceGrid {
     label.className = "device-label";
 
     const nameSpan = document.createElement("span");
+    nameSpan.className = "device-label-name";
     nameSpan.textContent = category.name;
 
     const select = document.createElement("select");

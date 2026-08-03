@@ -377,7 +377,19 @@
   color: var(--color-ink);
 }
 
+.device-label-name {
+  flex-shrink: 0;
+}
+
+/* Sized to its own content (default flex-item behavior, not flex: 1) so a
+   short name like `Desktop — 1920×1080` doesn't stretch to fill the row
+   with empty space — max-width is just a safety cap for long names on a
+   narrow card, not the normal sizing mechanism. text-overflow/white-space/
+   overflow are the fallback for names still too long even for that: an
+   ellipsis instead of a hard, ugly clip. */
 .device-select {
+  min-width: 0;
+  max-width: 75%;
   font: inherit;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
@@ -386,7 +398,9 @@
   border: 1px solid var(--color-ink-soft);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
-  max-width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
   transition: border-color var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) var(--ease-out);
 }

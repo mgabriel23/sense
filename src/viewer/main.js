@@ -16,12 +16,14 @@ import {
 } from "../shared/storage.js";
 import { applyStoredTheme, initThemeToggle } from "../shared/theme.js";
 import { Tour } from "./tour.js";
+import { captureAllCards } from "./screenshot.js";
 
 const urlForm = document.getElementById("url-form");
 const urlInput = document.getElementById("url-input");
 const urlError = document.getElementById("url-error");
 const gridEl = document.getElementById("grid");
 const reloadBtn = document.getElementById("reload-all");
+const exportAllBtn = document.getElementById("export-all");
 const recentUrlsMenu = document.getElementById("recent-urls-menu");
 const categoryTogglesEl = document.getElementById("category-toggles");
 const themeToggleBtn = document.getElementById("theme-toggle");
@@ -277,6 +279,7 @@ async function main() {
     urlInput.value = currentUrl;
     gridEl.hidden = !currentUrl;
     reloadBtn.disabled = !currentUrl;
+    exportAllBtn.disabled = !currentUrl;
 
     if (currentUrl) {
       grid.load(currentUrl);
@@ -320,6 +323,17 @@ async function main() {
   });
 
   reloadBtn.addEventListener("click", () => grid.reload());
+
+  exportAllBtn.addEventListener("click", async () => {
+    exportAllBtn.disabled = true;
+    try {
+      await captureAllCards(grid.entries);
+    } catch (error) {
+      console.warn("Sense: couldn't export the combined screenshot.", error);
+    } finally {
+      exportAllBtn.disabled = !currentUrl;
+    }
+  });
 
   let resizeTimer;
   window.addEventListener("resize", () => {

@@ -220,7 +220,8 @@ export class DeviceGrid {
   // Call on resize, on device/orientation change, and whenever a frame is
   // (re)loaded.
   relayout() {
-    for (const { currentDevice, orientation, card, viewport, iframe } of this.entries) {
+    for (const entry of this.entries) {
+      const { currentDevice, orientation, card, viewport, iframe } = entry;
       const dims = effectiveDimensions(currentDevice, orientation);
       const available = card.clientWidth;
       const scale = available > 0 ? Math.min(1, available / dims.width) : 1;
@@ -231,6 +232,12 @@ export class DeviceGrid {
       iframe.style.width = `${dims.width}px`;
       iframe.style.height = `${dims.height}px`;
       iframe.style.transform = `scale(${scale})`;
+
+      // Exposed for screenshot.js, which needs to know the current scale
+      // (and native, unscaled dims) to size a temporarily-expanded capture
+      // and correctly map captured pixels back to CSS coordinates.
+      entry.scale = scale;
+      entry.nativeDims = dims;
     }
   }
 

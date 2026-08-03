@@ -35,7 +35,9 @@
   },
   "permissions": [
     "declarativeNetRequestWithHostAccess",
-    "storage"
+    "storage",
+    "scripting",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"

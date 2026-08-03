@@ -31,7 +31,7 @@ Right-click the Sense icon → **Options** (or `chrome://extensions` → Sense �
 
 ## Why it asks for access to all sites
 
-Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ancestors`) that block being shown in an iframe at all. Sense uses a `declarativeNetRequest` rule to strip those headers, scoped with `initiatorDomains` to only the sub-frames created by Sense's own viewer tab — it has no effect on iframes anywhere else, including your normal browsing in other tabs.
+Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ancestors`) that block being shown in an iframe at all. Sense uses a `declarativeNetRequest` rule to strip those headers, scoped to only the specific tab a Sense preview is open in — it has no effect on any other tab, including your normal browsing. This also covers nested third-party iframes a previewed page embeds itself (an ad, a video embed, a widget) — those load inside the same preview tab, so they're unblocked too, not just the direct device-preview frames.
 
 ## Publishing to the Chrome Web Store
 

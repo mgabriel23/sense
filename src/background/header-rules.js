@@ -1,14 +1,19 @@
-const HEADER_STRIP_RULE_ID = 1;
-
-// Strips headers that block iframe embedding (X-Frame-Options, CSP frame-ancestors),
-// scoped by initiatorDomains to sub-frames created by Sense's own viewer page only —
-// this must never widen to match iframes on other sites the user visits normally.
-export async function ensureHeaderStripRule() {
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: [HEADER_STRIP_RULE_ID],
+// Strips headers that block iframe embedding (X-Frame-Options, CSP frame-ancestors).
+// Scoped by tabId (one rule per Sense viewer tab) rather than by initiator origin —
+// this also covers nested third-party iframes the previewed page embeds itself (an
+// ad, a video embed, a widget), whose initiator is the previewed site rather than
+// Sense, while still never touching any tab other than this specific viewer tab —
+// the same "only affects Sense's own preview" guarantee, just enforced per-tab
+// instead of per-initiator. Session-scoped (not dynamic): these are created fresh
+// whenever a viewer tab opens and don't need to survive a full browser restart, but
+// do survive service worker restarts, which happen often in MV3 and would otherwise
+// leave already-open tabs with a gap in coverage.
+export async function addHeaderStripRuleForTab(tabId) {
+  await chrome.declarativeNetRequest.updateSessionRules({
+    removeRuleIds: [tabId],
     addRules: [
       {
-        id: HEADER_STRIP_RULE_ID,
+        id: tabId,
         priority: 1,
         action: {
           type: "modifyHeaders",
@@ -20,9 +25,15 @@ export async function ensureHeaderStripRule() {
         },
         condition: {
           resourceTypes: ["sub_frame"],
-          initiatorDomains: [chrome.runtime.id],
+          tabIds: [tabId],
         },
       },
     ],
+  });
+}
+
+export async function removeHeaderStripRuleForTab(tabId) {
+  await chrome.declarativeNetRequest.updateSessionRules({
+    removeRuleIds: [tabId],
   });
 }

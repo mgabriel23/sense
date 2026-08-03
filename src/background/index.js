@@ -1,15 +1,20 @@
-import { ensureHeaderStripRule } from "./header-rules.js";
+import { removeHeaderStripRuleForTab } from "./header-rules.js";
 import { openViewerForTab } from "./viewer-launcher.js";
 import { captureVisibleTab } from "./capture.js";
 
-// Re-registered on every service worker start (in addition to onInstalled/onStartup)
-// because MV3 workers are terminated and restarted freely; dynamic rules must
-// always be re-asserted rather than assumed to persist from a prior run.
-ensureHeaderStripRule();
+// One-time cleanup of the old global dynamic rule from before header-stripping
+// became per-tab (session-scoped) — dynamic rules persist across extension
+// reloads/updates, so a stale copy would otherwise linger indefinitely.
+chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1] });
 
-chrome.runtime.onInstalled.addListener(ensureHeaderStripRule);
-chrome.runtime.onStartup.addListener(ensureHeaderStripRule);
 chrome.action.onClicked.addListener(openViewerForTab);
+
+// Each viewer tab gets its own session-scoped header-strip rule (see
+// header-rules.js); clean it up when the tab closes rather than leaking rules
+// for the lifetime of the browser session.
+chrome.tabs.onRemoved.addListener((tabId) => {
+  removeHeaderStripRuleForTab(tabId).catch(() => {});
+});
 
 // Screenshot capture happens here rather than directly from the viewer page:
 // chrome.tabs methods haven't been reliably callable from an extension page

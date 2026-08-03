@@ -23,6 +23,11 @@ const PHONE_LANDSCAPE_ICON =
 const CAMERA_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>';
 
+// Swapped in for CAMERA_ICON while a capture is in flight — an open arc
+// spun via the `.is-busy` CSS animation reads as a standard loading spinner.
+const SPINNER_ICON =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"></path></svg>';
+
 // A device's stored width/height is its natural orientation (e.g. a phone is
 // authored portrait, a desktop landscape). Toggling orientation swaps the two
 // only when the requested orientation differs from that natural one.
@@ -46,11 +51,12 @@ function effectiveDimensions(device, orientation) {
 // the grid's own track width is never inflated by a device's native (e.g. 1920px)
 // dimensions before we've had a chance to scale it.
 export class DeviceGrid {
-  constructor(container, categories, { onDeviceChange, onOrientationChange } = {}) {
+  constructor(container, categories, { onDeviceChange, onOrientationChange, onBusyChange } = {}) {
     this.container = container;
     this.categories = categories;
     this.onDeviceChange = onDeviceChange;
     this.onOrientationChange = onOrientationChange;
+    this.onBusyChange = onBusyChange;
     this.entries = this.categories.map((category) => this._createEntry(category));
   }
 
@@ -148,10 +154,15 @@ export class DeviceGrid {
     });
 
     screenshotBtn.addEventListener("click", async () => {
+      this.setBusy(true);
+      this.setCardCapturing(entry, true);
       try {
         await captureCard(entry);
       } catch (error) {
         console.warn(`Sense: couldn't capture a screenshot of ${entry.currentDevice.name}.`, error);
+      } finally {
+        this.setCardCapturing(entry, false);
+        this.setBusy(false);
       }
     });
 
@@ -213,6 +224,32 @@ export class DeviceGrid {
       entry.card.style.display = isVisible ? "" : "none";
     }
     this.relayout();
+  }
+
+  // Disables every card's device select/rotate/screenshot controls for the
+  // duration of a capture — a screenshot temporarily resizes its card and
+  // scrolls the whole page, so changing devices, rotating, or starting a
+  // second capture in the meantime would corrupt whichever one is in
+  // flight. Also notified outward via onBusyChange so the toolbar can
+  // disable Reload/Export (reloading a frame mid-capture would too).
+  setBusy(isBusy) {
+    for (const entry of this.entries) {
+      entry.select.disabled = isBusy;
+      entry.rotateBtn.disabled = isBusy;
+      entry.screenshotBtn.disabled = isBusy;
+    }
+    this.onBusyChange?.(isBusy);
+  }
+
+  // Visual "this card is being captured right now" state — an overlay plus
+  // a spinner swapped in for that card's own camera icon. For the combined
+  // export, called once per card in sequence as screenshot.js works through
+  // them, which doubles as a progress indicator (the overlay visibly moves
+  // from card to card) without needing a separate progress UI.
+  setCardCapturing(entry, isCapturing) {
+    entry.viewport.classList.toggle("is-capturing", isCapturing);
+    entry.screenshotBtn.classList.toggle("is-busy", isCapturing);
+    entry.screenshotBtn.innerHTML = isCapturing ? SPINNER_ICON : CAMERA_ICON;
   }
 
   // Recomputes each frame's scale from its card's current width, using

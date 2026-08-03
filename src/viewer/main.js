@@ -44,6 +44,12 @@ const SUN_ICON =
 const MOON_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
 
+// Matches the static markup in viewer.html — cached so it can be restored
+// after temporarily swapping in SPINNER_ICON during a combined export.
+const EXPORT_ICON = exportAllBtn.innerHTML;
+const SPINNER_ICON =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"></path></svg>';
+
 // Steps for the guided tour (see tour.js). target: null renders as a
 // centered card instead of spotlighting an element. Device-card steps
 // target the Mobile card specifically — all four work identically, so
@@ -203,6 +209,22 @@ async function main() {
   const storedCatalog = await getDeviceCatalog();
   const categories = storedCatalog && storedCatalog.length ? storedCatalog : DEFAULT_DEVICE_CATEGORIES;
 
+  const viewBtn = urlForm.querySelector('button[type="submit"]');
+
+  // Reloading, submitting a new URL, or toggling a category's visibility all
+  // eventually call relayout() — if any of that fires while a screenshot is
+  // mid-capture (which depends on a card's size/scale staying put while it
+  // scrolls the page), the capture would end up reading a moving target.
+  function setToolbarBusy(isBusy) {
+    reloadBtn.disabled = isBusy || !currentUrl;
+    exportAllBtn.disabled = isBusy || !currentUrl;
+    urlInput.disabled = isBusy;
+    viewBtn.disabled = isBusy;
+    for (const toggle of categoryTogglesEl.querySelectorAll(".category-toggle")) {
+      toggle.disabled = isBusy;
+    }
+  }
+
   const grid = new DeviceGrid(gridEl, categories, {
     onDeviceChange: async (categoryId, deviceId) => {
       const selection = await getDeviceSelection();
@@ -214,6 +236,7 @@ async function main() {
       selection[categoryId] = { ...selection[categoryId], orientation };
       setDeviceSelection(selection);
     },
+    onBusyChange: setToolbarBusy,
   });
 
   const storedSelection = await getDeviceSelection();
@@ -325,13 +348,20 @@ async function main() {
   reloadBtn.addEventListener("click", () => grid.reload());
 
   exportAllBtn.addEventListener("click", async () => {
-    exportAllBtn.disabled = true;
+    grid.setBusy(true);
+    exportAllBtn.classList.add("is-busy");
+    exportAllBtn.innerHTML = SPINNER_ICON;
     try {
-      await captureAllCards(grid.entries);
+      await captureAllCards(grid.entries, {
+        onCardStart: (entry) => grid.setCardCapturing(entry, true),
+        onCardEnd: (entry) => grid.setCardCapturing(entry, false),
+      });
     } catch (error) {
       console.warn("Sense: couldn't export the combined screenshot.", error);
     } finally {
-      exportAllBtn.disabled = !currentUrl;
+      exportAllBtn.classList.remove("is-busy");
+      exportAllBtn.innerHTML = EXPORT_ICON;
+      grid.setBusy(false);
     }
   });
 

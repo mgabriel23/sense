@@ -27,26 +27,40 @@ const COMBINED_GAP = 16;
 
 // How long to wait after scrolling before treating a slice as ready to
 // capture. Longer than a couple of animation frames on purpose: lazy-loaded
-// content (images, feed items) typically starts fetching only once it
-// scrolls into view, and a real network fetch takes much longer than a
-// frame or two — capturing too early bakes in blank placeholders that
-// finish loading a moment later, showing up as a visible seam once stitched
-// next to a slice that *did* capture the loaded content.
-const SETTLE_DELAY_MS = 500;
+// content (images, feed items, API-backed grids like YouTube's) typically
+// starts fetching only once it scrolls into view, and a real network fetch
+// takes much longer than a frame or two — capturing too early bakes in
+// blank placeholders that finish loading a moment later, showing up as
+// empty gaps once stitched together.
+const SETTLE_DELAY_MS = 900;
+
+// The priming pass (see captureMultiShot) scrolls through once specifically
+// to trigger scroll-into-view lazy loads before the real capture starts —
+// that head start is wasted if this is too short, since content triggered
+// late in the sweep barely gets more time than a real capture step would've
+// given it anyway.
+const PRIME_STEP_DELAY_MS = 200;
 
 export async function captureCard(entry) {
   const canvas = await captureCardCanvas(entry);
   downloadCanvas(canvas, screenshotFilename(entry));
 }
 
-export async function captureAllCards(entries) {
+export async function captureAllCards(entries, { onCardStart, onCardEnd } = {}) {
   const visible = entries.filter((entry) => entry.card.style.display !== "none");
   const canvases = [];
   // Sequential, not parallel — each capture scrolls the outer page and
   // temporarily resizes its own card, which would interfere with any other
-  // capture running at the same time.
+  // capture running at the same time. onCardStart/onCardEnd let the caller
+  // show which card is currently being worked on, doubling as a progress
+  // indicator for what would otherwise be a long, silent wait.
   for (const entry of visible) {
-    canvases.push(await captureCardCanvas(entry));
+    onCardStart?.(entry);
+    try {
+      canvases.push(await captureCardCanvas(entry));
+    } finally {
+      onCardEnd?.(entry);
+    }
   }
   downloadCanvas(combineHorizontally(canvases), "sense-all-screens.png");
 }
@@ -81,7 +95,7 @@ async function measureFullContentHeight(dims) {
 async function captureSingleShot(entry) {
   entry.viewport.scrollIntoView({ block: "center", inline: "center" });
   await waitForNextPaint();
-  const image = await captureVisibleTabImage();
+  const image = await captureVisibleTabImage(entry.viewport);
   return cropToRect(image, entry.viewport.getBoundingClientRect());
 }
 
@@ -128,6 +142,7 @@ async function captureMultiShot(entry, dims, fullHeight) {
     for (let offset = 0; offset < scaledHeight; offset += window.innerHeight) {
       scrollToContentOffset(offset);
       await waitForNextPaint();
+      await new Promise((resolve) => setTimeout(resolve, PRIME_STEP_DELAY_MS));
     }
     scrollToContentOffset(0);
     await waitToSettle();
@@ -148,7 +163,7 @@ async function captureMultiShot(entry, dims, fullHeight) {
       const availableCssHeight = visibleBottom - visibleTop;
       if (availableCssHeight <= 0) break;
 
-      const image = await captureVisibleTabImage();
+      const image = await captureVisibleTabImage(viewport);
       const pixelScale = image.width / document.documentElement.clientWidth;
 
       if (!ctx) {
@@ -210,12 +225,24 @@ function waitToSettle() {
   });
 }
 
-async function captureVisibleTabImage() {
-  const response = await chrome.runtime.sendMessage({ type: "sense-capture-tab" });
-  if (!response?.dataUrl) {
-    throw new Error(response?.error || "No screenshot data was returned.");
+// chrome.tabs.captureVisibleTab grabs whatever's actually painted on
+// screen — including Sense's own "Capturing…" overlay sitting on top of the
+// card, which would otherwise get baked directly into the output. Hiding it
+// for just this instant (with a frame to let the removal actually paint
+// before the snapshot) keeps it visible to the user between shots without
+// ever showing up in a downloaded image.
+async function captureVisibleTabImage(viewportToHide) {
+  viewportToHide?.classList.remove("is-capturing");
+  if (viewportToHide) await new Promise((resolve) => requestAnimationFrame(resolve));
+  try {
+    const response = await chrome.runtime.sendMessage({ type: "sense-capture-tab" });
+    if (!response?.dataUrl) {
+      throw new Error(response?.error || "No screenshot data was returned.");
+    }
+    return await loadImage(response.dataUrl);
+  } finally {
+    viewportToHide?.classList.add("is-capturing");
   }
-  return loadImage(response.dataUrl);
 }
 
 function loadImage(src) {

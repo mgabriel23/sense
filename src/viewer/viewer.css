@@ -463,6 +463,34 @@
   background: var(--color-surface);
 }
 
+/* Shown while a card's full-page capture is in progress — the process
+   temporarily resizes the card and scrolls the whole page to reach content
+   beyond one screen, which without this would look like something broke
+   rather than something working. */
+.frame-viewport.is-capturing::after {
+  content: "Capturing…";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+}
+
+@keyframes sense-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-btn.is-busy svg {
+  animation: sense-spin 0.8s linear infinite;
+}
+
 /* Guided tour — see viewer/tour.js. The scrim is a fixed dark value rather
    than a theme token: a modal dimming layer reads as dark in both light and
    dark mode (unlike --color-ink, which flips to a light color in dark mode

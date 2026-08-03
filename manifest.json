@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sense — Multi-Screen Preview",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Preview any website across mobile, tablet, laptop, and desktop sizes side by side, in one click.",
   "icons": {
     "16": "icons/icon16.png",

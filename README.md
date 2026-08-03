@@ -41,10 +41,14 @@ Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ance
 4. Fill in the store listing — a short description (the one in `manifest.json` works as-is), at least one screenshot (the four-device grid in action is the obvious choice), and a category (Developer Tools fits).
 5. Fill in the **Privacy practices** tab — required given the `<all_urls>` host permission, even though Sense collects nothing. You'll need:
    - A one-sentence **single purpose** description (e.g. "Preview a website across multiple device sizes at once").
-   - A justification for each permission: `declarativeNetRequestWithHostAccess` + `<all_urls>` (needed to strip iframe-blocking headers so arbitrary sites can be previewed) and `storage` (remembers the user's last URL, device/orientation choices, and category visibility locally).
+   - A justification for each permission:
+     - `declarativeNetRequestWithHostAccess` + `<all_urls>` — strips iframe-blocking headers so arbitrary sites can be previewed, scoped per-tab to Sense's own preview tabs only.
+     - `storage` — remembers the user's last URL, device/orientation choices, category visibility, and theme locally.
+     - `scripting` — measures a previewed page's true scrollable height for the full-page screenshot feature. Cross-origin iframes block reading that directly from the parent page, so a small read-only measurement script is injected into Sense's own preview sub-frames only, at the moment a screenshot is requested.
+     - `webNavigation` — enumerates a tab's sub-frame IDs so the measurement script above can be targeted precisely at Sense's preview sub-frames. Without it, injection has to fall back to targeting the whole tab, which fails outright because that also covers Sense's own `chrome-extension://` page — an origin the extension can't inject into even though it's the extension's own.
    - A **privacy policy URL** — a one-paragraph hosted page (a GitHub Gist works) stating that Sense doesn't collect, transmit, or store any data outside the user's own browser is enough.
 6. Submit for review. Broad host permissions are the most common rejection trigger — if rejected, the feedback will point at exactly which justification needs more detail; fix and resubmit the same package.
-7. For updates later: bump `version` in `manifest.json`, re-zip, upload as a new package in the same dashboard item, resubmit.
+7. For updates later: bump `version` in `manifest.json`, re-zip, upload as a new package in the same dashboard item, resubmit. Updates that add new permissions (like `scripting`/`webNavigation` above) commonly get pulled into manual review even when the original listing was auto-approved — budget more time than a routine bugfix update.
 
 ## Known limitations (MVP)
 

@@ -88,11 +88,11 @@ export class DeviceGrid {
 
     const rotateBtn = document.createElement("button");
     rotateBtn.type = "button";
-    rotateBtn.className = "btn icon-btn device-icon-btn";
+    rotateBtn.className = "btn icon-btn device-icon-btn rotate-btn";
 
     const screenshotBtn = document.createElement("button");
     screenshotBtn.type = "button";
-    screenshotBtn.className = "btn icon-btn device-icon-btn";
+    screenshotBtn.className = "btn icon-btn device-icon-btn screenshot-btn";
     screenshotBtn.innerHTML = CAMERA_ICON;
     screenshotBtn.title = "Save screenshot";
     screenshotBtn.setAttribute("aria-label", "Save screenshot");

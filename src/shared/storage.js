@@ -10,6 +10,7 @@ const KEYS = {
   RECENT_URLS: "recentUrls",
   VISIBLE_CATEGORIES: "visibleCategories",
   THEME: "theme",
+  TOUR_COMPLETED: "tourCompleted",
 };
 
 const MAX_RECENT_URLS = 8;
@@ -161,5 +162,29 @@ export async function setTheme(theme) {
     await chrome.storage.local.set({ [KEYS.THEME]: theme });
   } catch (error) {
     console.warn("Sense: couldn't save the theme.", error);
+  }
+}
+
+// False (the default) means the guided tour auto-starts on next load. Set
+// true whether the tour was finished OR skipped — either way the user has
+// seen it and shouldn't be nagged again automatically; it stays available
+// on demand via the toolbar's help button regardless of this flag.
+export async function getTourCompleted() {
+  if (!isStorageAvailable()) return false;
+  try {
+    const result = await chrome.storage.local.get(KEYS.TOUR_COMPLETED);
+    return result[KEYS.TOUR_COMPLETED] ?? false;
+  } catch (error) {
+    console.warn("Sense: couldn't read tour completion from storage.", error);
+    return false;
+  }
+}
+
+export async function setTourCompleted(completed) {
+  if (!isStorageAvailable()) return;
+  try {
+    await chrome.storage.local.set({ [KEYS.TOUR_COMPLETED]: completed });
+  } catch (error) {
+    console.warn("Sense: couldn't save tour completion.", error);
   }
 }

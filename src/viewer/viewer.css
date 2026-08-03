@@ -462,3 +462,93 @@
   color: var(--color-ink-soft);
   background: var(--color-surface);
 }
+
+/* Guided tour — see viewer/tour.js. The scrim is a fixed dark value rather
+   than a theme token: a modal dimming layer reads as dark in both light and
+   dark mode (unlike --color-ink, which flips to a light color in dark mode
+   and would wash the page out instead of dimming it). */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.tour-spotlight {
+  position: fixed;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  transition: top var(--dur-quick) var(--ease-out), left var(--dur-quick) var(--ease-out),
+    width var(--dur-quick) var(--ease-out), height var(--dur-quick) var(--ease-out);
+  pointer-events: none;
+}
+
+.tour-spotlight-visible {
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--color-accent);
+}
+
+.tour-tooltip {
+  position: fixed;
+  z-index: 1001;
+  width: min(320px, calc(100vw - var(--space-6)));
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition: top var(--dur-quick) var(--ease-out), left var(--dur-quick) var(--ease-out);
+}
+
+.tour-tooltip-centered {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}
+
+.tour-step-count {
+  margin: 0 0 var(--space-1);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.tour-title {
+  margin: 0 0 var(--space-2);
+  font-size: 16px;
+}
+
+.tour-body {
+  margin: 0 0 var(--space-4);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tour-skip {
+  border: 0;
+  background: none;
+  padding: var(--space-1) 0;
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tour-skip:hover,
+.tour-skip:focus-visible {
+  color: var(--color-ink);
+}
+
+.tour-nav {
+  display: flex;
+  gap: var(--space-2);
+}

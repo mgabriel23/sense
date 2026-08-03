@@ -11,8 +11,11 @@ import {
   addRecentUrl,
   getVisibleCategories,
   setVisibleCategories,
+  getTourCompleted,
+  setTourCompleted,
 } from "../shared/storage.js";
 import { applyStoredTheme, initThemeToggle } from "../shared/theme.js";
+import { Tour } from "./tour.js";
 
 const urlForm = document.getElementById("url-form");
 const urlInput = document.getElementById("url-input");
@@ -22,6 +25,7 @@ const reloadBtn = document.getElementById("reload-all");
 const recentUrlsMenu = document.getElementById("recent-urls-menu");
 const categoryTogglesEl = document.getElementById("category-toggles");
 const themeToggleBtn = document.getElementById("theme-toggle");
+const tourHelpBtn = document.getElementById("tour-help");
 
 // Checkmark drawn inside each category pill's leading indicator box — makes
 // the pill read as a checkbox-style on/off control rather than just a color change.
@@ -37,6 +41,63 @@ const SUN_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
 const MOON_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
+// Steps for the guided tour (see tour.js). target: null renders as a
+// centered card instead of spotlighting an element. Device-card steps
+// target the Mobile card specifically — all four work identically, so
+// walking through one is enough rather than repeating it four times.
+const TOUR_STEPS = [
+  {
+    target: null,
+    title: "Welcome to Sense",
+    body: "Preview any website at four sizes side by side — no more manually resizing DevTools. Here's a quick look at what's on screen.",
+  },
+  {
+    target: "#url-input",
+    title: "Enter a URL",
+    body: "Type or paste any website address here. Click into the box any time to revisit your last 8 previewed links.",
+  },
+  {
+    target: ".url-form .btn-primary",
+    title: "Load the preview",
+    body: "Click View (or just press Enter) to render the page across all four screens at once.",
+  },
+  {
+    target: "#reload-all",
+    title: "Reload everything",
+    body: "Refreshes all four previews together — handy after the page you're testing changes.",
+  },
+  {
+    target: "#theme-toggle",
+    title: "Light or dark",
+    body: "Switches Sense's own theme. Your choice is remembered for next time.",
+  },
+  {
+    target: ".category-toggles",
+    title: "Show or hide sizes",
+    body: "Click a pill to hide that size category, or bring it back. At least one always stays visible.",
+  },
+  {
+    target: '.device-card[data-category="mobile"] .device-select',
+    title: "Pick a device",
+    body: "Each card can show a specific device within its category — e.g. swap this from iPhone SE to Pixel 7 — without affecting the other three cards.",
+  },
+  {
+    target: '.device-card[data-category="mobile"] .rotate-btn',
+    title: "Rotate a card",
+    body: "Flips this card between portrait and landscape. It's remembered per card, even if you switch to a different device afterward.",
+  },
+  {
+    target: '.device-card[data-category="mobile"] .screenshot-btn',
+    title: "Save a screenshot",
+    body: "Downloads just this card's preview as a PNG — it scrolls the card into view first if it isn't already visible.",
+  },
+  {
+    target: null,
+    title: "You're all set",
+    body: "Reopen this tour anytime from the (?) icon in the toolbar.",
+  },
+];
 
 function showError(message) {
   urlError.textContent = message || "";
@@ -282,6 +343,31 @@ async function main() {
   }
 
   urlInput.focus();
+
+  // A few tour steps target controls inside the device grid, which stays
+  // hidden until a URL is loaded — reveal it for the tour's duration if
+  // needed, and only re-hide it afterward if the user still hasn't entered
+  // one by the time the tour ends.
+  function runTour() {
+    const gridWasHidden = gridEl.hidden;
+    if (gridWasHidden) {
+      gridEl.hidden = false;
+      grid.relayout();
+    }
+
+    new Tour(TOUR_STEPS, {
+      onFinish: () => {
+        setTourCompleted(true);
+        if (gridWasHidden && !currentUrl) gridEl.hidden = true;
+      },
+    }).start();
+  }
+
+  tourHelpBtn.addEventListener("click", runTour);
+
+  if (!(await getTourCompleted())) {
+    runTour();
+  }
 }
 
 main();

@@ -113,7 +113,7 @@
   margin: 0;
   padding: var(--space-1);
   list-style: none;
-  max-height: 240px;
+  max-height: 320px;
   overflow-y: auto;
   background: var(--color-surface);
   border: 1px solid var(--color-line);
@@ -121,9 +121,14 @@
   box-shadow: var(--shadow-md);
 }
 
+/* 44px-tall rows (vs. the previous ~32px) — a more comfortable click/tap
+   target, in line with the rest of the toolbar's controls. */
 .recent-urls-menu button {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   width: 100%;
+  min-height: 44px;
   padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: var(--radius-sm);
@@ -131,16 +136,63 @@
   color: var(--color-ink);
   font-size: 13px;
   text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   cursor: pointer;
+  transition: background-color var(--dur-quick) var(--ease-out);
 }
 
 .recent-urls-menu button:hover,
 .recent-urls-menu button:focus-visible {
   outline: none;
   background: var(--color-bg);
+}
+
+.recent-url-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-ink-soft);
+}
+
+/* Domain is never truncated (flex-shrink: 0) — the site you're picking is
+   always fully readable; only the path/query, which matters less for
+   telling entries apart at a glance, gets the ellipsis treatment. */
+.recent-url-text {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.recent-url-domain {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.recent-url-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-ink-soft);
+}
+
+/* A quiet directional cue that only appears on hover/focus, rather than
+   permanently competing with the domain/path text for attention. */
+.recent-url-go {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-ink-soft);
+  opacity: 0;
+  transform: translateX(-2px);
+  transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
+}
+
+.recent-urls-menu button:hover .recent-url-go,
+.recent-urls-menu button:focus-visible .recent-url-go {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .url-error {

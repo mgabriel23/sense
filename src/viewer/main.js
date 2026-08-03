@@ -28,6 +28,11 @@ const themeToggleBtn = document.getElementById("theme-toggle");
 const CHECK_ICON =
   '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
+const HISTORY_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>';
+const GO_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+
 const SUN_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
 const MOON_ICON =
@@ -44,18 +49,79 @@ async function main() {
 
   let recentUrls = [];
 
+  // Splits a URL into its hostname (always shown in full, bold) and the
+  // rest (path/query, muted, truncated) — makes the list scannable by site
+  // at a glance instead of reading each full string left to right.
+  function splitUrlForDisplay(url) {
+    try {
+      const parsed = new URL(url);
+      const rest = parsed.pathname === "/" ? "" : parsed.pathname + parsed.search;
+      return { host: parsed.hostname, rest };
+    } catch {
+      return { host: url, rest: "" };
+    }
+  }
+
   function renderRecentUrls(urls) {
     recentUrls = urls;
     recentUrlsMenu.innerHTML = "";
     for (const url of urls) {
+      const { host, rest } = splitUrlForDisplay(url);
+
       const item = document.createElement("li");
       const button = document.createElement("button");
       button.type = "button";
-      button.textContent = url;
+
+      const icon = document.createElement("span");
+      icon.className = "recent-url-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML = HISTORY_ICON;
+
+      const text = document.createElement("span");
+      text.className = "recent-url-text";
+
+      const domain = document.createElement("span");
+      domain.className = "recent-url-domain";
+      domain.textContent = host;
+
+      const path = document.createElement("span");
+      path.className = "recent-url-path";
+      path.textContent = rest;
+
+      text.append(domain, path);
+
+      const goIcon = document.createElement("span");
+      goIcon.className = "recent-url-go";
+      goIcon.setAttribute("aria-hidden", "true");
+      goIcon.innerHTML = GO_ICON;
+
+      button.append(icon, text, goIcon);
       button.addEventListener("click", () => {
         hideRecentUrls();
         setUrl(url);
       });
+
+      // Simple linear focus navigation between menu items, entered from the
+      // URL input via ArrowDown below — keeps the list comfortable to use
+      // from the keyboard, not just the mouse.
+      button.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          // Order matters: focusing the input fires its own "focus" listener
+          // (showRecentUrls), which would re-open the menu if this ran second.
+          urlInput.focus();
+          hideRecentUrls();
+        } else if (event.key === "ArrowDown") {
+          event.preventDefault();
+          const next = item.nextElementSibling?.querySelector("button");
+          next?.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          const prev = item.previousElementSibling?.querySelector("button");
+          if (prev) prev.focus();
+          else urlInput.focus();
+        }
+      });
+
       item.appendChild(button);
       recentUrlsMenu.appendChild(item);
     }
@@ -174,14 +240,22 @@ async function main() {
 
   urlInput.addEventListener("focus", showRecentUrls);
 
-  // Delayed so a click on a menu item (which blurs the input first) still
-  // registers before the menu disappears.
+  // Delayed, and checks where focus actually landed, so moving focus INTO
+  // the menu — via a mouse click or via ArrowDown below — doesn't get
+  // closed out from under the user by this same blur handler.
   urlInput.addEventListener("blur", () => {
-    setTimeout(hideRecentUrls, 150);
+    setTimeout(() => {
+      if (!recentUrlsMenu.contains(document.activeElement)) hideRecentUrls();
+    }, 150);
   });
 
   urlInput.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") hideRecentUrls();
+    if (event.key === "Escape") {
+      hideRecentUrls();
+    } else if (event.key === "ArrowDown" && !recentUrlsMenu.hidden) {
+      event.preventDefault();
+      recentUrlsMenu.querySelector("button")?.focus();
+    }
   });
 
   reloadBtn.addEventListener("click", () => grid.reload());

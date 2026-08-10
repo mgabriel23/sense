@@ -288,7 +288,7 @@
    in the unchecked state this border is the *only* affordance that a
    checkbox exists here, so it needs the 3:1 WCAG 1.4.11 non-text contrast
    minimum for UI-state indicators — --color-line measures ~1.4:1 against
-   the surface, --color-ink-soft measures 6.1:1+ in both themes. */
+   the surface, --color-ink-soft measures 5.8:1+ in both themes. */
 .category-toggle-check {
   flex-shrink: 0;
   display: inline-flex;

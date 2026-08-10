@@ -28,12 +28,21 @@
   .toolbar {
     grid-template-columns: auto 1fr auto;
     grid-template-areas: "brand form reload";
-    gap: var(--space-4);
+    /* Grid `gap` is one value for every column, so this is the gap between
+       View and Reload specifically (the "form" and "reload" areas sit
+       directly against each other in a single row at this width) — set to
+       match .toolbar-actions's own inter-button gap below, so View reads
+       as part of the same evenly-spaced button row instead of sitting a
+       visibly wider gap away from Reload. Brand↔form spacing is restored
+       to its original width via .url-form's margin-left just below, so
+       only the View↔Reload seam actually changes. */
+    gap: var(--space-2);
     padding: var(--space-3) var(--space-5);
   }
 
   .url-form {
     gap: var(--space-4);
+    margin-left: var(--space-2);
   }
 }
 
@@ -270,8 +279,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 32px;
-  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
+  min-height: 36px;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
   font-size: 13px;
   font-weight: 500;
   border-radius: 999px;
@@ -280,16 +289,18 @@
   color: var(--color-ink-soft);
   cursor: pointer;
   transition: background-color var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
+    color var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out),
+    box-shadow var(--dur-quick) var(--ease-out);
 }
 
+/* A small lift on hover, not just a color change — every other interactive
+   surface in this pass (buttons, cards) got some form of this; the pills
+   were the one control still purely flat. */
 .category-toggle:hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
-}
-
-.category-toggle:hover .category-toggle-check {
-  border-color: var(--color-accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .category-toggle:active {
@@ -301,39 +312,49 @@
   box-shadow: var(--focus-ring);
 }
 
-/* The checkbox-style indicator is what actually sells "this is toggleable" —
-   an empty box reads as unchecked, independent of the pill's own color.
-   Uses --color-ink-soft rather than the decorative --color-line hairline:
-   in the unchecked state this border is the *only* affordance that a
-   checkbox exists here, so it needs the 3:1 WCAG 1.4.11 non-text contrast
-   minimum for UI-state indicators — --color-line measures ~1.4:1 against
-   the surface, --color-ink-soft measures 5.8:1+ in both themes. */
-.category-toggle-check {
+/* Leading glyph: the category's own device icon when off, a checkmark when
+   on (swapped in main.js) — the icon itself carries the state, rather than
+   sitting next to a separate static checkbox box. The pill's own border/
+   fill/text already carry the required 3:1+ state contrast (verified
+   where aria-pressed="true" is styled below), so this glyph is reinforcing,
+   not the sole indicator the old empty checkbox box had to be. */
+.category-toggle-icon {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 16px;
   height: 16px;
-  border-radius: 5px;
-  border: 1.5px solid var(--color-ink-soft);
-  color: transparent;
-  transition: background-color var(--dur-quick) var(--ease-out), border-color var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
+  transition: color var(--dur-quick) var(--ease-out);
 }
 
 .category-toggle[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
   border-color: var(--color-accent);
   color: var(--color-accent);
   font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
-.category-toggle[aria-pressed="true"] .category-toggle-check {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-on-accent);
-  transform: scale(1.05);
+.category-toggle[aria-pressed="true"] .category-toggle-icon {
+  color: var(--color-accent);
+  animation: category-toggle-pop 260ms var(--ease-out);
+}
+
+/* Plays once whenever a pill's icon switches to the checkmark (including
+   the currently-visible categories on first paint) — a quick overshoot-
+   and-settle rather than a flat swap, so turning a category on reads as a
+   small, deliberate confirmation. */
+@keyframes category-toggle-pop {
+  0% {
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Grid — mobile-first: minmax(min(280px, 100%), 1fr) guarantees a single

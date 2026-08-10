@@ -151,6 +151,7 @@ body {
   border-color: var(--color-accent);
   color: var(--color-accent);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .btn:active:not(:disabled) {
@@ -165,6 +166,29 @@ body {
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Tier-3 "ghost" style for utility/meta controls (theme toggle, tour help,
+   settings) — no visible chrome until interacted with, so they recede next
+   to Reload/Export/Screenshot, which produce a real result and should read
+   as "the real buttons" by comparison. Only color/background/shadow are
+   overridden here — size, focus ring, disabled state, and the hover/press
+   lift itself are inherited from .btn above so it stays part of the same
+   button system rather than a separate one. Equal-specificity rules placed
+   after .btn's own in the cascade, so these win the tie without needing
+   !important or extra selector weight. */
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-ink-soft);
+  box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-ink) 8%, transparent);
+  color: var(--color-ink);
+  box-shadow: none;
 }
 
 /* Primary CTA gets a colored glow that lifts on hover and settles on press,

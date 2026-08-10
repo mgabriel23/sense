@@ -414,9 +414,19 @@
 .device-controls {
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+}
+
+/* Groups the numeric size with the orientation badge so `.device-controls`'s
+   space-between still only splits two things: this group vs. the buttons. */
+.device-readout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .device-size-readout {
@@ -424,6 +434,28 @@
   font-family: var(--font-mono);
   color: var(--color-ink-soft);
   font-variant-numeric: tabular-nums;
+}
+
+/* Plain-language orientation state, independent of the rotate button's icon
+   (which encodes the same thing as a phone-shaped glyph — clear once you
+   know the convention, but this needs no interpretation at a glance).
+   Leads the readout row and carries the same accent-tinted highlight as
+   `.category-toggle[aria-pressed="true"]` — reusing that recipe rather than
+   inventing a second "active state" look — so it reads as a status chip
+   worth noticing, not another quiet measurement like the size text next to it. */
+.device-orientation-label {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .device-controls-buttons {

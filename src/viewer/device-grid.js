@@ -90,6 +90,19 @@ export class DeviceGrid {
     const sizeReadout = document.createElement("span");
     sizeReadout.className = "device-size-readout";
 
+    // A word, not just the rotate button's icon — the icon alone (a phone
+    // glyph drawn portrait- or landscape-shaped) reads clearly once you know
+    // the convention, but a plain-language label next to it needs no
+    // interpretation at a glance.
+    const orientationLabel = document.createElement("span");
+    orientationLabel.className = "device-orientation-label";
+
+    const readout = document.createElement("div");
+    readout.className = "device-readout";
+    // Orientation leads the row — it's the thing worth noticing at a
+    // glance; the exact pixel size next to it rewards a closer look.
+    readout.append(orientationLabel, sizeReadout);
+
     const buttonGroup = document.createElement("div");
     buttonGroup.className = "device-controls-buttons";
 
@@ -105,7 +118,7 @@ export class DeviceGrid {
     screenshotBtn.setAttribute("aria-label", "Save screenshot");
 
     buttonGroup.append(rotateBtn, screenshotBtn);
-    controls.append(sizeReadout, buttonGroup);
+    controls.append(readout, buttonGroup);
 
     const viewport = document.createElement("div");
     viewport.className = "frame-viewport";
@@ -127,6 +140,7 @@ export class DeviceGrid {
       iframe,
       select,
       sizeReadout,
+      orientationLabel,
       rotateBtn,
       screenshotBtn,
       loadTimer: null,
@@ -181,6 +195,8 @@ export class DeviceGrid {
   _updateOrientationUI(entry) {
     const dims = effectiveDimensions(entry.currentDevice, entry.orientation);
     entry.sizeReadout.textContent = `${dims.width} × ${dims.height}`;
+    entry.orientationLabel.textContent =
+      entry.orientation === "portrait" ? "Portrait" : "Landscape";
 
     entry.rotateBtn.innerHTML =
       entry.orientation === "portrait" ? PHONE_PORTRAIT_ICON : PHONE_LANDSCAPE_ICON;

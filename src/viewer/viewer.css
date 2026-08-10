@@ -423,22 +423,29 @@
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  padding: var(--space-3);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
-  transition: box-shadow var(--dur-quick) var(--ease-out);
+  gap: var(--space-3);
+  transition: box-shadow var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
 }
 
+/* A small lift, not just a bigger shadow — matches the hover language
+   buttons and category pills already use elsewhere, so the card reads as
+   part of the same interactive system rather than a static container. */
 .device-card:hover {
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .device-label {
   width: 100%;
   display: flex;
-  align-items: baseline;
+  /* center, not baseline — the select is a bordered/padded control, not
+     plain text, so aligning it to the name's text baseline made its box
+     hang slightly below center instead of sitting level with it. */
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   font-size: 13px;
@@ -527,14 +534,50 @@
   white-space: nowrap;
 }
 
+/* space-2, matching .toolbar-actions's inter-button gap — same reasoning
+   as the earlier View/Reload fix: two icon buttons sitting this close
+   together read as one cramped unit at the old 4px gap, while every other
+   icon-button row in the app already used 8px. */
 .device-controls-buttons {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
+/* Circular and lightly tinted at rest, rather than square and flat like
+   the toolbar's icon buttons — the toolbar reads as utilitarian chrome,
+   these are the per-card action controls, so a bit more visual presence is
+   warranted. The tonal fill on hover reuses the same accent-tint recipe as
+   the category pills and orientation badge instead of inventing a new
+   "selected state" look. */
 .device-icon-btn {
+  min-height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-ink) 5%, var(--color-surface));
   font-size: 16px;
   line-height: 1;
+}
+
+.device-icon-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+}
+
+/* These buttons sit directly above the live preview iframe. A below-
+   anchored tooltip (theme.css's default) would visually overlap it, and a
+   scaled/transformed iframe (device-grid.js sets `transform: scale()` on
+   it for responsive sizing) can end up compositing above sibling overlays
+   in Chrome regardless of z-index — a known practical quirk, not something
+   z-index alone reliably wins. Anchoring the tooltip above the button
+   instead sidesteps the overlap entirely rather than fighting stacking order. */
+.btn.device-icon-btn[title]::after {
+  top: auto;
+  bottom: calc(100% + var(--space-2));
+  transform: translateX(-50%) translateY(4px);
+}
+
+.btn.device-icon-btn[title]:hover::after,
+.btn.device-icon-btn[title]:focus-visible::after {
+  transform: translateX(-50%) translateY(0);
 }
 
 .frame-viewport {

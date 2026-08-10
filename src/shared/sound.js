@@ -66,11 +66,16 @@ const PATTERNS = {
     { offset: 0, frequency: 415.3, duration: 0.13, gain: 0.13, type: "triangle" },
     { offset: 0.11, frequency: 311.13, duration: 0.2, gain: 0.13, type: "triangle" },
   ],
+  // A single soft, quiet tick rather than a chime — View/Reload are common
+  // clicks, so this fires far more often than success/warning/error, and
+  // needs to stay unobtrusive rather than announce itself.
+  loading: [{ offset: 0, frequency: 587.33, duration: 0.07, gain: 0.07, type: "sine" }],
 };
 
-// Only success/warning/error play a sound — the "default" toast variant
-// (options page's Undo confirmations) fires often during routine list
-// editing, and a sound on every single one would get old fast.
+// success/warning/error/loading all play a sound — the "default" toast
+// variant (options page's Undo confirmations) is the one exception, since
+// it fires often during routine list editing and a sound on every single
+// one would get old fast.
 export function playToastSound(variant) {
   const pattern = PATTERNS[variant];
   if (!pattern) return;

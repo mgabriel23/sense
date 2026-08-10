@@ -159,6 +159,12 @@ export class DeviceGrid {
     iframe.addEventListener("load", () => {
       clearTimeout(entry.loadTimer);
       viewport.classList.remove("is-loading", "load-timeout");
+      // Settles this card's pending navigation (see _navigate) — whichever
+      // happens first, the load event or the timeout, resolves it, so
+      // load()/reload() callers can know when every card has reached a
+      // final state (loaded or given up) without polling.
+      entry.resolveLoad?.();
+      entry.resolveLoad = null;
     });
 
     select.addEventListener("change", () => {
@@ -304,38 +310,59 @@ export class DeviceGrid {
     }
   }
 
+  // Returns a promise that settles when this card reaches a final state for
+  // this navigation — either the frame loads, or LOAD_TIMEOUT_MS runs out
+  // and it falls back to the "may not allow embedding" message. Either way
+  // counts as "done" for callers (main.js) that just want to know when
+  // every card has stopped actively loading, not whether each one succeeded.
   _navigate(entry, url) {
     clearTimeout(entry.loadTimer);
     entry.viewport.classList.remove("load-timeout");
     entry.viewport.classList.add("is-loading");
     entry.iframe.src = url;
-    entry.loadTimer = setTimeout(() => {
-      entry.viewport.classList.remove("is-loading");
-      entry.viewport.classList.add("load-timeout");
-    }, LOAD_TIMEOUT_MS);
+    return new Promise((resolve) => {
+      entry.resolveLoad = resolve;
+      entry.loadTimer = setTimeout(() => {
+        entry.viewport.classList.remove("is-loading");
+        entry.viewport.classList.add("load-timeout");
+        entry.resolveLoad?.();
+        entry.resolveLoad = null;
+      }, LOAD_TIMEOUT_MS);
+    });
   }
 
   // Points every frame at `url`, skipping frames already showing it.
+  // Returns a promise that resolves once every (re)navigated frame has
+  // reached a final state — see _navigate.
   load(url) {
+    const pending = [];
     for (const entry of this.entries) {
       if (entry.iframe.dataset.src !== url) {
         entry.iframe.dataset.src = url;
-        this._navigate(entry, url);
+        pending.push(this._navigate(entry, url));
       }
     }
     this.relayout();
+    return Promise.all(pending);
   }
 
   // Forces every frame to re-navigate to its current URL. Toggling through
   // about:blank guarantees a fresh navigation even for cross-origin frames,
-  // where we can't call contentWindow.location.reload() directly.
+  // where we can't call contentWindow.location.reload() directly. Returns a
+  // promise that resolves once every frame has reached a final state.
   reload() {
+    const pending = [];
     for (const entry of this.entries) {
       const url = entry.iframe.dataset.src;
       if (!url) continue;
 
       entry.iframe.src = "about:blank";
-      requestAnimationFrame(() => this._navigate(entry, url));
+      pending.push(
+        new Promise((resolve) => {
+          requestAnimationFrame(() => this._navigate(entry, url).then(resolve));
+        })
+      );
     }
+    return Promise.all(pending);
   }
 }

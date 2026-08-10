@@ -266,7 +266,9 @@
   align-items: center;
   gap: var(--space-1);
   margin-left: auto;
-  font-size: 12px;
+  /* Matches .category-toggle's own 13px label text right next to it,
+     rather than being the smallest text in the toolbar (was 12px). */
+  font-size: 13px;
   color: var(--color-ink-soft);
   white-space: nowrap;
 }

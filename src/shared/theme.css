@@ -316,6 +316,16 @@ body {
   display: inline-flex;
 }
 
+@keyframes toast-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.toast-icon-spin {
+  animation: toast-icon-spin 0.8s linear infinite;
+}
+
 /* Left accent bar plus a matching icon color — color is never the only
    signal (WCAG 1.4.1): the icon shape (check / triangle / x) still tells
    success from warning from error if color can't be perceived. */
@@ -341,6 +351,18 @@ body {
 
 .toast-error .toast-icon {
   color: #f0938f;
+}
+
+/* "In progress," not success/warning/error, so it borrows the accent color
+   rather than one of those three semantic colors — same fixed dark-mode
+   value used throughout this component, for the reasons in the .toast
+   comment above. */
+.toast-loading {
+  box-shadow: var(--shadow-md), inset 4px 0 0 #8b8cf7;
+}
+
+.toast-loading .toast-icon {
+  color: #8b8cf7;
 }
 
 .toast-message {

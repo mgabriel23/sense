@@ -21,7 +21,8 @@ function getContainer() {
 // One icon per variant so the type reads at a glance without relying on
 // color alone (WCAG 1.4.1) — "default" (the options page's Undo
 // confirmations) has none, since those are routine, frequent, and not
-// really successes, warnings, or errors.
+// really successes, warnings, or errors. "loading" spins via .toast-icon-spin
+// (theme.css) instead of getting its own static glyph.
 const ICONS = {
   success:
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 10.8 15.3 16 9.5"></polyline></svg>',
@@ -29,15 +30,22 @@ const ICONS = {
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 22 20.5H2z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
   error:
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="14.5" y1="9.5" x2="9.5" y2="14.5"></line><line x1="9.5" y1="9.5" x2="14.5" y2="14.5"></line></svg>',
+  loading:
+    '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"></path></svg>',
 };
 
 // Errors/warnings get more time on screen to actually be read; a plain
-// success confirmation doesn't need to linger.
+// success confirmation doesn't need to linger. "loading" has no default —
+// it's expected to be dismissed programmatically once the work it's
+// tracking actually finishes, not on a timer that might fire too early
+// (fast connection) or leave it hanging too long (slow one).
 const DEFAULT_DURATIONS = { success: 4000, warning: 6500, error: 6500, default: 5000 };
 
-// variant: "default" | "success" | "warning" | "error". actionLabel +
-// onAction together add an undo/retry-style button; omit both for a plain
-// confirmation toast.
+// variant: "default" | "success" | "warning" | "error" | "loading".
+// actionLabel + onAction together add an undo/retry-style button; omit
+// both for a plain confirmation toast. Pass duration: null for a toast
+// that stays until its returned dismiss() is called explicitly — used by
+// "loading", but available to any variant.
 export function showToast(message, { actionLabel, onAction, duration, variant = "default" } = {}) {
   const toast = document.createElement("div");
   toast.className = variant === "default" ? "toast" : `toast toast-${variant}`;
@@ -45,7 +53,7 @@ export function showToast(message, { actionLabel, onAction, duration, variant = 
   const icon = ICONS[variant];
   if (icon) {
     const iconEl = document.createElement("span");
-    iconEl.className = "toast-icon";
+    iconEl.className = variant === "loading" ? "toast-icon toast-icon-spin" : "toast-icon";
     iconEl.setAttribute("aria-hidden", "true");
     iconEl.innerHTML = icon;
     toast.appendChild(iconEl);
@@ -79,7 +87,11 @@ export function showToast(message, { actionLabel, onAction, duration, variant = 
   // Starts off-state then flips on next frame so the transition actually runs
   // (adding the class in the same tick it's inserted wouldn't animate).
   requestAnimationFrame(() => toast.classList.add("toast-visible"));
-  dismissTimer = setTimeout(dismiss, duration ?? DEFAULT_DURATIONS[variant] ?? 5000);
+
+  const effectiveDuration = duration === null ? null : duration ?? DEFAULT_DURATIONS[variant] ?? 5000;
+  if (effectiveDuration !== null) {
+    dismissTimer = setTimeout(dismiss, effectiveDuration);
+  }
 
   playToastSound(variant);
 

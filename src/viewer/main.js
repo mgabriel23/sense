@@ -334,7 +334,8 @@ async function main() {
     exportAllBtn.disabled = !currentUrl;
 
     if (currentUrl) {
-      grid.load(currentUrl);
+      const dismissLoading = showToast("Loading previews…", { variant: "loading", duration: null });
+      grid.load(currentUrl).then(dismissLoading);
       setLastUrl(currentUrl);
       addRecentUrl(currentUrl).then(renderRecentUrls);
     }
@@ -374,7 +375,10 @@ async function main() {
     }
   });
 
-  reloadBtn.addEventListener("click", () => grid.reload());
+  reloadBtn.addEventListener("click", () => {
+    const dismissLoading = showToast("Reloading previews…", { variant: "loading", duration: null });
+    grid.reload().then(dismissLoading);
+  });
 
   exportAllBtn.addEventListener("click", async () => {
     grid.setBusy(true);

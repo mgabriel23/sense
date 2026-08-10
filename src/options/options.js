@@ -1,6 +1,7 @@
 import { DEFAULT_DEVICE_CATEGORIES } from "../viewer/devices.js";
 import { getDeviceCatalog, setDeviceCatalog } from "../shared/storage.js";
 import { applyStoredTheme } from "../shared/theme.js";
+import { showToast } from "../shared/toast.js";
 
 const MIN_DIMENSION = 1;
 const MAX_DIMENSION = 10000;
@@ -59,9 +60,18 @@ function renderCategory(category) {
     const defaults = findDefaultCategory(category.id);
     if (!defaults) return;
     const index = catalog.findIndex((c) => c.id === category.id);
+    const previous = catalog[index];
     catalog[index] = defaults;
     persist();
     render();
+    showToast(`Reset ${category.name} to its default devices`, {
+      actionLabel: "Undo",
+      onAction: () => {
+        catalog[index] = previous;
+        persist();
+        render();
+      },
+    });
   });
 
   header.append(heading, resetBtn);
@@ -103,9 +113,19 @@ function renderDeviceRow(category, device) {
     : `Remove ${device.name}`;
 
   removeBtn.addEventListener("click", () => {
-    category.devices = category.devices.filter((d) => d.id !== device.id);
+    const index = category.devices.findIndex((d) => d.id === device.id);
+    if (index === -1) return;
+    category.devices.splice(index, 1);
     persist();
     render();
+    showToast(`Removed "${device.name}"`, {
+      actionLabel: "Undo",
+      onAction: () => {
+        category.devices.splice(index, 0, device);
+        persist();
+        render();
+      },
+    });
   });
 
   row.append(nameSpan, sizeSpan, removeBtn);
@@ -116,16 +136,22 @@ function renderAddDeviceForm(category) {
   const form = document.createElement("form");
   form.className = "add-device-form";
 
+  // aria-label, not a visible <label>, because placeholder alone isn't
+  // exposed as an accessible name reliably — but a real <label for="">
+  // would need a unique id, and this form is rendered once per category
+  // (4 times), so a static id would collide across cards.
   const nameInput = document.createElement("input");
   nameInput.type = "text";
   nameInput.className = "field device-name-input";
   nameInput.placeholder = "Name (e.g. Galaxy Fold)";
+  nameInput.setAttribute("aria-label", `New ${category.name} device name`);
   nameInput.required = true;
 
   const widthInput = document.createElement("input");
   widthInput.type = "number";
   widthInput.className = "field device-width-input";
   widthInput.placeholder = "Width";
+  widthInput.setAttribute("aria-label", `New ${category.name} device width in pixels`);
   widthInput.min = String(MIN_DIMENSION);
   widthInput.max = String(MAX_DIMENSION);
   widthInput.required = true;
@@ -134,6 +160,7 @@ function renderAddDeviceForm(category) {
   heightInput.type = "number";
   heightInput.className = "field device-height-input";
   heightInput.placeholder = "Height";
+  heightInput.setAttribute("aria-label", `New ${category.name} device height in pixels`);
   heightInput.min = String(MIN_DIMENSION);
   heightInput.max = String(MAX_DIMENSION);
   heightInput.required = true;
@@ -183,9 +210,18 @@ function showFormError(errorEl, message) {
 }
 
 resetAllBtn.addEventListener("click", () => {
+  const previous = catalog;
   catalog = structuredClone(DEFAULT_DEVICE_CATEGORIES);
   persist();
   render();
+  showToast("Reset all categories to their default devices", {
+    actionLabel: "Undo",
+    onAction: () => {
+      catalog = previous;
+      persist();
+      render();
+    },
+  });
 });
 
 async function main() {

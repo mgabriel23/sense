@@ -1,4 +1,5 @@
 import { captureCard } from "./screenshot.js";
+import { showToast } from "../shared/toast.js";
 
 const IFRAME_SANDBOX =
   "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox";
@@ -126,6 +127,12 @@ export class DeviceGrid {
     const iframe = document.createElement("iframe");
     iframe.setAttribute("sandbox", IFRAME_SANDBOX);
     iframe.setAttribute("referrerpolicy", "no-referrer");
+    // Sense is a visual preview, not an interactive one — there's no
+    // workflow here that needs keyboard focus to land inside a previewed
+    // page. Without this, a keyboard user tabbing past a card falls into
+    // whatever the previewed site's own tab order is (its nav, its forms)
+    // before reaching this card's own controls or the next card.
+    iframe.tabIndex = -1;
 
     viewport.appendChild(iframe);
     card.append(label, controls, viewport);
@@ -173,8 +180,10 @@ export class DeviceGrid {
       this.setCardCapturing(entry, true);
       try {
         await captureCard(entry);
+        showToast(`Saved ${entry.currentDevice.name} screenshot`, { variant: "success" });
       } catch (error) {
         console.warn(`Sense: couldn't capture a screenshot of ${entry.currentDevice.name}.`, error);
+        showToast(`Couldn't save the ${category.name} screenshot — try again.`, { variant: "error" });
       } finally {
         this.setCardCapturing(entry, false);
         this.setBusy(false);

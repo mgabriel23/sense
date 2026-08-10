@@ -15,6 +15,7 @@ import {
   setTourCompleted,
 } from "../shared/storage.js";
 import { applyStoredTheme, initThemeToggle } from "../shared/theme.js";
+import { showToast } from "../shared/toast.js";
 import { Tour } from "./tour.js";
 import { captureAllCards } from "./screenshot.js";
 
@@ -22,12 +23,14 @@ const urlForm = document.getElementById("url-form");
 const urlInput = document.getElementById("url-input");
 const urlError = document.getElementById("url-error");
 const gridEl = document.getElementById("grid");
+const emptyStateEl = document.getElementById("empty-state");
 const reloadBtn = document.getElementById("reload-all");
 const exportAllBtn = document.getElementById("export-all");
 const recentUrlsMenu = document.getElementById("recent-urls-menu");
 const categoryTogglesEl = document.getElementById("category-toggles");
 const themeToggleBtn = document.getElementById("theme-toggle");
 const tourHelpBtn = document.getElementById("tour-help");
+const openSettingsBtn = document.getElementById("open-settings");
 
 // Checkmark drawn inside each category pill's leading indicator box — makes
 // the pill read as a checkbox-style on/off control rather than just a color change.
@@ -103,7 +106,7 @@ const TOUR_STEPS = [
   {
     target: null,
     title: "You're all set",
-    body: "Reopen this tour anytime from the (?) icon in the toolbar.",
+    body: "Reopen this tour anytime from the (?) icon in the toolbar. The gear icon next to it opens Settings, where you can customize the device list.",
   },
 ];
 
@@ -301,6 +304,7 @@ async function main() {
 
     urlInput.value = currentUrl;
     gridEl.hidden = !currentUrl;
+    emptyStateEl.hidden = !!currentUrl;
     reloadBtn.disabled = !currentUrl;
     exportAllBtn.disabled = !currentUrl;
 
@@ -356,8 +360,10 @@ async function main() {
         onCardStart: (entry) => grid.setCardCapturing(entry, true),
         onCardEnd: (entry) => grid.setCardCapturing(entry, false),
       });
+      showToast("Saved combined screenshot", { variant: "success" });
     } catch (error) {
       console.warn("Sense: couldn't export the combined screenshot.", error);
+      showToast("Couldn't save the combined screenshot — try again.", { variant: "error" });
     } finally {
       exportAllBtn.classList.remove("is-busy");
       exportAllBtn.innerHTML = EXPORT_ICON;
@@ -396,18 +402,33 @@ async function main() {
     const gridWasHidden = gridEl.hidden;
     if (gridWasHidden) {
       gridEl.hidden = false;
+      emptyStateEl.hidden = true;
       grid.relayout();
     }
 
     new Tour(TOUR_STEPS, {
       onFinish: () => {
         setTourCompleted(true);
-        if (gridWasHidden && !currentUrl) gridEl.hidden = true;
+        if (gridWasHidden && !currentUrl) {
+          gridEl.hidden = true;
+          emptyStateEl.hidden = false;
+        }
       },
     }).start();
   }
 
   tourHelpBtn.addEventListener("click", runTour);
+  openSettingsBtn.addEventListener("click", () => {
+    // chrome.runtime goes undefined if this tab was opened before the
+    // extension was last reloaded/updated — its connection is invalidated,
+    // not just this one call. Surfacing that beats a silent dead click.
+    try {
+      chrome.runtime.openOptionsPage();
+    } catch (error) {
+      console.warn("Sense: couldn't open settings.", error);
+      showToast("Couldn't open settings — close and reopen this tab, then try again.", { variant: "error" });
+    }
+  });
 
   if (!(await getTourCompleted())) {
     runTour();

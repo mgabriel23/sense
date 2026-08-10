@@ -202,3 +202,144 @@ body {
   font-size: 13px;
   border-radius: var(--radius-sm);
 }
+
+/* CSS-only tooltip for icon-only buttons, reusing their existing `title`
+   attribute text via attr(). The native browser tooltip only appears on
+   mouse hover, never on keyboard focus — this one shows on both, so a
+   sighted keyboard user tabbing through icon buttons isn't left guessing
+   what an unlabeled icon does. Positioned by the caller's own `position`
+   (relative in practice, since every icon-btn already needs one). */
+[title].icon-btn {
+  position: relative;
+}
+
+[title].icon-btn::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  color: var(--color-bg);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 50;
+  transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
+}
+
+[title].icon-btn:hover::after,
+[title].icon-btn:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Toast/snackbar — see shared/toast.js. Bottom-center so it never covers the
+   toolbar controls a user just clicked (top of the page in every layout
+   here), and stacks upward as more toasts arrive via flex-direction: column-reverse. */
+.toast-container {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-7);
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-3);
+  align-items: center;
+  pointer-events: none;
+  width: min(440px, calc(100vw - var(--space-6)));
+}
+
+/* Fixed dark colors, not theme tokens — same reasoning as the tour scrim
+   above: --color-ink/--color-accent flip between themes (light ink is dark,
+   dark ink is light), so a toast built from them would read as a *light*
+   chip in dark mode and silently break the accent-on-background contrast
+   that's only been verified for the accent's dark-mode pairing (dark bg/
+   surface). Using dark mode's own validated values as fixed constants keeps
+   the toast one consistent "dark chip" in both themes and keeps that
+   verified 6.2:1+ contrast intact regardless of which theme is active. */
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background: #12151f;
+  color: #e8eaf2;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
+}
+
+.toast-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+/* Left accent bar plus a matching icon color — color is never the only
+   signal (WCAG 1.4.1): the icon shape (check / triangle / x) still tells
+   success from warning from error if color can't be perceived. */
+.toast-success {
+  box-shadow: var(--shadow-md), inset 4px 0 0 #6fd6a0;
+}
+
+.toast-success .toast-icon {
+  color: #6fd6a0;
+}
+
+.toast-warning {
+  box-shadow: var(--shadow-md), inset 4px 0 0 #f5c46b;
+}
+
+.toast-warning .toast-icon {
+  color: #f5c46b;
+}
+
+.toast-error {
+  box-shadow: var(--shadow-md), inset 4px 0 0 #f0938f;
+}
+
+.toast-error .toast-icon {
+  color: #f0938f;
+}
+
+.toast-message {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.toast-action {
+  flex-shrink: 0;
+  border: 0;
+  background: none;
+  padding: var(--space-1) var(--space-2);
+  margin: calc(var(--space-1) * -1) calc(var(--space-2) * -1);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b8cf7;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.toast-action:hover,
+.toast-action:focus-visible {
+  color: #a5a6f9;
+}

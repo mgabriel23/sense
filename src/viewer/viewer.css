@@ -70,6 +70,25 @@
   font-size: 16px;
 }
 
+/* Overrides theme.css's centered icon-btn tooltip for this row specifically:
+   these buttons sit close to the browser window's right edge, and a
+   centered tooltip (e.g. "Export all screens as one image") extends past
+   it. That box still counts toward the page's scrollable area even while
+   invisible (opacity: 0 doesn't remove it from layout) — the result is a
+   permanent horizontal scrollbar, not just an occasional visual clip.
+   Anchoring to the button's own right edge instead keeps the tooltip
+   growing left, into the toolbar's own space, never past the window edge. */
+.icon-btn.toolbar-icon-btn[title]::after {
+  left: auto;
+  right: 0;
+  transform: translateY(-4px);
+}
+
+.icon-btn.toolbar-icon-btn[title]:hover::after,
+.icon-btn.toolbar-icon-btn[title]:focus-visible::after {
+  transform: translateY(0);
+}
+
 .url-input-wrap {
   position: relative;
   flex: 1;
@@ -338,6 +357,35 @@
    (same pitfall noted for .device-card in device-grid.js) — this raises the
    specificity so main.js's `gridEl.hidden = true` actually hides the grid. */
 .grid[hidden] {
+  display: none;
+}
+
+/* Shown in place of the grid before a URL is entered — otherwise a
+   returning user who clears the URL (past the one-time guided tour) sees
+   nothing but toolbar chrome over blank space, with no cue what to do next. */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+.empty-state p {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Same `[hidden]`-vs-author-rule specificity fix as `.grid[hidden]` above —
+   `display: flex` here is an author rule and would otherwise beat the
+   browser's default `[hidden] { display: none }` regardless of specificity. */
+.empty-state[hidden] {
   display: none;
 }
 

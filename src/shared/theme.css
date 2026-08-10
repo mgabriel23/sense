@@ -203,17 +203,20 @@ body {
   border-radius: var(--radius-sm);
 }
 
-/* CSS-only tooltip for icon-only buttons, reusing their existing `title`
-   attribute text via attr(). The native browser tooltip only appears on
-   mouse hover, never on keyboard focus — this one shows on both, so a
-   sighted keyboard user tabbing through icon buttons isn't left guessing
-   what an unlabeled icon does. Positioned by the caller's own `position`
-   (relative in practice, since every icon-btn already needs one). */
-[title].icon-btn {
+/* CSS-only tooltip for every button, icon-only or labeled, reusing its
+   existing `title` attribute text via attr(). Scoped to .btn (not just
+   .icon-btn) so a labeled button like Reload gets the same styled tooltip
+   instead of falling back to the browser's plain native one — otherwise
+   the two looked like two different components on the same toolbar. The
+   native tooltip only appears on mouse hover, never on keyboard focus —
+   this one shows on both, so a sighted keyboard user tabbing through
+   isn't left guessing what a control does. Positioned by the caller's own
+   `position` (relative in practice, since every .btn already needs one). */
+[title].btn {
   position: relative;
 }
 
-[title].icon-btn::after {
+[title].btn::after {
   content: attr(title);
   position: absolute;
   top: calc(100% + var(--space-2));
@@ -232,8 +235,8 @@ body {
   transition: opacity var(--dur-quick) var(--ease-out), transform var(--dur-quick) var(--ease-out);
 }
 
-[title].icon-btn:hover::after,
-[title].icon-btn:focus-visible::after {
+[title].btn:hover::after,
+[title].btn:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }

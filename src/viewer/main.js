@@ -16,6 +16,7 @@ import {
 } from "../shared/storage.js";
 import { applyStoredTheme, initThemeToggle } from "../shared/theme.js";
 import { showToast } from "../shared/toast.js";
+import { CATEGORY_ICONS } from "../shared/device-icons.js";
 import { Tour } from "./tour.js";
 import { captureAllCards } from "./screenshot.js";
 
@@ -38,25 +39,6 @@ const openSettingsBtn = document.getElementById("open-settings");
 // checkbox box.
 const CHECK_ICON =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-
-const MOBILE_ICON =
-  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"></rect><line x1="11" y1="18" x2="13" y2="18"></line></svg>';
-const TABLET_ICON =
-  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="11" y1="18" x2="13" y2="18"></line></svg>';
-const LAPTOP_ICON =
-  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="11" rx="1.5"></rect><line x1="1" y1="18" x2="23" y2="18"></line></svg>';
-const DESKTOP_ICON =
-  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="12" rx="1.5"></rect><line x1="12" y1="15" x2="12" y2="18"></line><line x1="8" y1="20" x2="16" y2="20"></line></svg>';
-
-// Keyed by category id (see devices.js) — falls back to the checkmark glyph
-// itself if a future category id isn't in this map, so an unrecognized
-// category degrades to "no distinct icon" rather than rendering nothing.
-const CATEGORY_ICONS = {
-  mobile: MOBILE_ICON,
-  tablet: TABLET_ICON,
-  laptop: LAPTOP_ICON,
-  desktop: DESKTOP_ICON,
-};
 
 const HISTORY_ICON =
   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>';

@@ -215,6 +215,22 @@ body {
   transform: translateY(0);
 }
 
+/* Icon slot for buttons that pair an icon with a visible text label
+   (Reset, Add, Reset all on the options page) — .btn itself stays
+   inline-block (its default), so this handles its own centering rather
+   than relying on a flex parent, and works the same regardless of which
+   .btn variant it's used inside. */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: var(--space-1);
+}
+
+.btn-icon svg {
+  display: block;
+}
+
 /* Compact square button variant for icon-only actions (remove row, rotate, etc). */
 .icon-btn {
   min-height: 32px;

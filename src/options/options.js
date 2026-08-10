@@ -2,16 +2,20 @@ import { DEFAULT_DEVICE_CATEGORIES } from "../viewer/devices.js";
 import { getDeviceCatalog, setDeviceCatalog } from "../shared/storage.js";
 import { applyStoredTheme } from "../shared/theme.js";
 import { showToast } from "../shared/toast.js";
+import { CATEGORY_ICONS } from "../shared/device-icons.js";
 
 const MIN_DIMENSION = 1;
 const MAX_DIMENSION = 10000;
 
+const PLUS_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
+const X_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
 const categoriesEl = document.getElementById("categories");
 const resetAllBtn = document.getElementById("reset-all");
-const saveStatus = document.getElementById("save-status");
 
 let catalog = [];
-let saveStatusTimer;
 
 function findDefaultCategory(categoryId) {
   return structuredClone(DEFAULT_DEVICE_CATEGORIES.find((c) => c.id === categoryId));
@@ -21,17 +25,19 @@ function makeDeviceId(categoryId) {
   return `${categoryId}-custom-${crypto.randomUUID().slice(0, 8)}`;
 }
 
-function flashSaved() {
-  saveStatus.textContent = "Saved";
-  clearTimeout(saveStatusTimer);
-  saveStatusTimer = setTimeout(() => {
-    saveStatus.textContent = "";
-  }, 1500);
-}
-
 async function persist() {
   await setDeviceCatalog(catalog);
-  flashSaved();
+}
+
+// Builds a button's inner content as icon + text, keeping the two as
+// separate nodes (rather than one innerHTML string) so the visible label
+// stays ordinary text.
+function iconButtonContent(button, iconSvg, label) {
+  const icon = document.createElement("span");
+  icon.className = "btn-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = iconSvg;
+  button.append(icon, document.createTextNode(label));
 }
 
 function render() {
@@ -48,12 +54,23 @@ function renderCategory(category) {
   const header = document.createElement("div");
   header.className = "category-header";
 
-  const heading = document.createElement("h2");
-  heading.textContent = category.name;
+  const heading = document.createElement("div");
+  heading.className = "category-heading";
+
+  const badge = document.createElement("span");
+  badge.className = "category-icon-badge";
+  badge.setAttribute("aria-hidden", "true");
+  const categoryIcon = CATEGORY_ICONS[category.id];
+  if (categoryIcon) badge.innerHTML = categoryIcon;
+
+  const heading2 = document.createElement("h2");
+  heading2.textContent = category.name;
+
+  heading.append(badge, heading2);
 
   const resetBtn = document.createElement("button");
   resetBtn.type = "button";
-  resetBtn.className = "btn icon-btn";
+  resetBtn.className = "btn";
   resetBtn.textContent = "Reset";
   resetBtn.title = `Reset ${category.name} to its default devices`;
   resetBtn.addEventListener("click", () => {
@@ -103,8 +120,8 @@ function renderDeviceRow(category, device) {
 
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
-  removeBtn.className = "btn icon-btn";
-  removeBtn.textContent = "✕";
+  removeBtn.className = "btn icon-btn btn-ghost device-remove-btn";
+  removeBtn.innerHTML = X_ICON;
   const isOnlyDevice = category.devices.length <= 1;
   removeBtn.disabled = isOnlyDevice;
   removeBtn.setAttribute("aria-label", `Remove ${device.name}`);
@@ -168,7 +185,7 @@ function renderAddDeviceForm(category) {
   const addBtn = document.createElement("button");
   addBtn.type = "submit";
   addBtn.className = "btn btn-primary";
-  addBtn.textContent = "Add";
+  iconButtonContent(addBtn, PLUS_ICON, "Add");
 
   const error = document.createElement("p");
   error.className = "form-error";
@@ -199,6 +216,7 @@ function renderAddDeviceForm(category) {
     category.devices.push({ id: makeDeviceId(category.id), name, width, height });
     persist();
     render();
+    showToast(`Added "${name}" to ${category.name}`, { variant: "success" });
   });
 
   return form;

@@ -9,19 +9,34 @@
   gap: var(--space-5);
 }
 
+@media (min-width: 640px) {
+  #app {
+    padding: var(--space-6) var(--space-5);
+    gap: var(--space-6);
+  }
+}
+
+/* Separated from the categories below by a hairline, not just spacing —
+   this page has no toolbar/sticky chrome to otherwise mark "here's the
+   page title, here's the content," so the header needs its own boundary. */
+.options-header {
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-line);
+}
+
 .options-header .brand {
   font-weight: 700;
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: -0.02em;
   color: var(--color-accent);
 }
 
 .options-header .subtitle {
   margin: var(--space-2) 0 0;
+  max-width: 52ch;
   color: var(--color-ink-soft);
-  font-family: var(--font-body);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .categories {
@@ -35,45 +50,83 @@
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  padding: var(--space-4);
+  padding: var(--space-5);
 }
 
 .category-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.category-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Tonal icon badge, same accent-tint recipe used by the category pills and
+   orientation badge on the viewer page — reinforces that this is the same
+   product/category rather than inventing a new "section header" language. */
+.category-icon-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  color: var(--color-accent);
 }
 
 .category-header h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .device-list {
   list-style: none;
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .device-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   background: var(--color-bg);
+  transition: border-color var(--dur-quick) var(--ease-out);
 }
 
+/* A quiet cue that the row is interactive (the remove button lives here) —
+   the row's own hover state, not just the button's, since the button is
+   ghost-styled and easy to visually miss until you're already looking at it. */
+.device-row:hover {
+  border-color: var(--color-ink-soft);
+}
+
+/* line-height: 1 on both text spans, not just the remove button — with the
+   browser's default (looser) line-height, a text span's own box carries
+   extra leading the button's tightened box doesn't have, so align-items:
+   center was centering three boxes of visually inconsistent leading
+   rather than the actual glyphs/icon against each other. */
 .device-row .device-name {
   flex: 1;
   min-width: 0;
+  font-size: 14px;
   font-weight: 500;
+  line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -83,11 +136,32 @@
   color: var(--color-ink-soft);
   font-variant-numeric: tabular-nums;
   font-size: 13px;
+  line-height: 1;
   white-space: nowrap;
 }
 
+/* Ghost by default (ordinary list housekeeping, not worth a permanently
+   loud button) but tints toward danger on hover instead of .btn-ghost's
+   neutral ink wash — the one signal this specific action needs that the
+   generic ghost style doesn't provide. */
+.device-remove-btn {
+  flex-shrink: 0;
+  /* .icon-btn centers its icon via flex, but without an explicit
+     line-height the button's own box still inherits the page's normal
+     text line-height, which can pad it taller than its 32px min-height —
+     enough to throw off .device-row's align-items: center against the
+     plain-text name/size next to it. Same fix already used by the
+     viewer's .device-icon-btn for the same reason. */
+  line-height: 1;
+}
+
+.device-remove-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  color: var(--color-danger);
+}
+
 .field {
-  min-height: 36px;
+  min-height: 40px;
   padding: var(--space-2) var(--space-3);
   font-size: 14px;
   /* --color-ink-soft, not --color-line — same reasoning as the viewer's
@@ -110,10 +184,16 @@
   color: var(--color-ink-soft);
 }
 
+/* A hairline break from the device list above — "here's what exists" vs.
+   "here's where you add more" reads as two distinct zones instead of one
+   continuous stack once the list itself has enough breathing room to need it. */
 .add-device-form {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
 }
 
 .add-device-form .device-name-input {
@@ -130,19 +210,11 @@
 .add-device-form .form-error {
   flex-basis: 100%;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-danger);
 }
 
 .options-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.save-status {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-ink-soft);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-line);
 }

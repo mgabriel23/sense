@@ -29,23 +29,10 @@
 
   /* System font stacks, not bundled webfonts — zero extra bytes in the
      package, instant paint (no FOUT/FOIT), and matches the OS the reviewer
-     or user is already on. --font-body used to name a serif ("Newsreader")
-     that was never actually loaded and silently fell back to Georgia; a
-     dev-tool audience reads serif body copy as editorial/mismatched, so
-     body now shares the same sans stack as the UI chrome instead. */
+     or user is already on. One stack for both UI chrome and body copy —
+     a dev-tool audience reads a serif body font as editorial/mismatched. */
   --font-display: system-ui, -apple-system, "Segoe UI", roboto, sans-serif;
-  --font-body: system-ui, -apple-system, "Segoe UI", roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", menlo, consolas, monospace;
-
-  /* Fluid type scale, kept available for future use — Sense's toolbar UI is
-     dense/compact, so components below keep their existing fixed px sizes
-     rather than these hero-oriented clamp() sizes. */
-  --text-xs: 0.6875rem;
-  --text-sm: 0.9375rem;
-  --text-md: 1.125rem;
-  --text-lg: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
-  --text-xl: clamp(1.9rem, 1.35rem + 2.2vw, 3rem);
-  --text-2xl: clamp(2.5rem, 1.5rem + 3.8vw, 4.75rem);
 
   /* 4px-based spacing scale (rem so it tracks root font-size/zoom) — every
      margin/padding/gap references one of these. */
@@ -57,7 +44,6 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4rem;
-  --space-9: 6rem;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -73,11 +59,10 @@
      opaque accent ring measures 5.8:1 (light) / 8.1:1 (dark) instead. */
   --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
 
-  /* Motion — one easing voice; durations split into quick (the only one this
-     app currently uses) and slow (kept available for larger reveals later). */
+  /* Motion — one easing voice, one duration; every transition in this app
+     is a short state change (hover/press/toggle), not a larger reveal. */
   --ease-out: cubic-bezier(0.22, 0.61, 0.28, 1);
   --dur-quick: 180ms;
-  --dur-slow: 560ms;
 }
 
 /* Follows the OS setting by default. The toolbar's theme toggle sets

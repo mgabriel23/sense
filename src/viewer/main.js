@@ -126,6 +126,45 @@ function showError(message) {
   urlError.hidden = !message;
 }
 
+// Shared by both places that (re)navigate every frame at once — a plain
+// wrapper so the variant/duration pairing can't drift between the two call
+// sites (see main() below).
+function showLoadingToast(message) {
+  return showToast(message, { variant: "loading", duration: null });
+}
+
+// One category pill: category.name/icon on the left, a checkmark that
+// swaps in when active. Self-contained (no closure over main()'s state) so
+// it can be unit-tested or reused independent of how main() calls it.
+function createCategoryToggle(category, isVisible, onToggle) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "category-toggle";
+
+  const icon = document.createElement("span");
+  icon.className = "category-toggle-icon";
+  icon.setAttribute("aria-hidden", "true");
+
+  const categoryIcon = CATEGORY_ICONS[category.id] ?? CHECK_ICON;
+  icon.innerHTML = isVisible ? CHECK_ICON : categoryIcon;
+
+  const label = document.createElement("span");
+  label.className = "category-toggle-label";
+  label.textContent = category.name;
+
+  button.append(icon, label);
+  button.setAttribute("aria-pressed", String(isVisible));
+
+  button.addEventListener("click", () => {
+    const nowVisible = onToggle();
+    if (nowVisible === undefined) return; // toggle was refused (last visible category)
+    button.setAttribute("aria-pressed", String(nowVisible));
+    icon.innerHTML = nowVisible ? CHECK_ICON : categoryIcon;
+  });
+
+  return button;
+}
+
 async function main() {
   await applyStoredTheme();
   initThemeToggle(themeToggleBtn, { lightIcon: SUN_ICON, darkIcon: MOON_ICON });
@@ -265,42 +304,22 @@ async function main() {
 
   categoryTogglesEl.innerHTML = "";
   for (const category of categories) {
-    const toggleBtn = document.createElement("button");
-    toggleBtn.type = "button";
-    toggleBtn.className = "category-toggle";
-
-    const icon = document.createElement("span");
-    icon.className = "category-toggle-icon";
-    icon.setAttribute("aria-hidden", "true");
-
-    const categoryIcon = CATEGORY_ICONS[category.id] ?? CHECK_ICON;
-    icon.innerHTML = visibleIds.has(category.id) ? CHECK_ICON : categoryIcon;
-
-    const label = document.createElement("span");
-    label.className = "category-toggle-label";
-    label.textContent = category.name;
-
-    toggleBtn.append(icon, label);
-    toggleBtn.setAttribute("aria-pressed", String(visibleIds.has(category.id)));
-
-    toggleBtn.addEventListener("click", () => {
+    const toggleBtn = createCategoryToggle(category, visibleIds.has(category.id), () => {
       const next = new Set(visibleIds);
       if (next.has(category.id)) {
-        if (next.size === 1) return; // keep at least one category visible
+        if (next.size === 1) return undefined; // keep at least one category visible
         next.delete(category.id);
       } else {
         next.add(category.id);
       }
       visibleIds = next;
-      const nowVisible = next.has(category.id);
-      toggleBtn.setAttribute("aria-pressed", String(nowVisible));
-      icon.innerHTML = nowVisible ? CHECK_ICON : categoryIcon;
 
       const idsArray = categories.map((c) => c.id).filter((id) => next.has(id));
       grid.setVisibleCategories(idsArray);
       setVisibleCategories(idsArray);
-    });
 
+      return next.has(category.id);
+    });
     categoryTogglesEl.appendChild(toggleBtn);
   }
 
@@ -324,7 +343,7 @@ async function main() {
     exportAllBtn.disabled = !currentUrl;
 
     if (currentUrl) {
-      const dismissLoading = showToast("Loading previews…", { variant: "loading", duration: null });
+      const dismissLoading = showLoadingToast("Loading previews…");
       grid.load(currentUrl).then(dismissLoading);
       setLastUrl(currentUrl);
       addRecentUrl(currentUrl).then(renderRecentUrls);
@@ -366,7 +385,7 @@ async function main() {
   });
 
   reloadBtn.addEventListener("click", () => {
-    const dismissLoading = showToast("Reloading previews…", { variant: "loading", duration: null });
+    const dismissLoading = showLoadingToast("Reloading previews…");
     grid.reload().then(dismissLoading);
   });
 

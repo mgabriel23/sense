@@ -15,11 +15,12 @@ A Chrome extension for developers: preview the site you're on across mobile, tab
 2. Click the Sense toolbar icon, or press **Ctrl+Shift+Y** (**Cmd+Shift+Y** on Mac). Rebind it any time at `chrome://extensions/shortcuts`.
 3. A new tab opens showing the page rendered at four sizes at once: Mobile, Tablet, Laptop, and Desktop, each defaulting to a common size (375×667, 768×1024, 1366×768, 1920×1080).
 4. Each card has a dropdown to swap in a specific device within that category (e.g. Mobile → iPhone 14, Pixel 7, Galaxy S21) without changing the others.
-5. The ⟳ button on each card flips that card between portrait and landscape — it's a per-card preference, so it carries over even if you then switch to a different device in the same category.
-6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames. Click into the URL bar to see a dropdown of your last 8 previewed URLs.
+5. The rotate button on each card flips that card between portrait and landscape — it's a per-card preference, so it carries over even if you then switch to a different device in the same category. A badge next to the size readout ("PORTRAIT"/"LANDSCAPE") states the current orientation in words.
+6. Edit the URL bar at the top and hit **View** to preview a different page, or **Reload** to refresh all four frames. Click into the URL bar to see a dropdown of your last 8 previewed URLs. A toast confirms while frames are (re)loading and clears itself once every visible card has settled.
 7. Reopening Sense (icon, shortcut, or a fresh tab with nothing to preview) restores the last URL and the last device + orientation picked per category — it doesn't start from scratch.
-8. The ⬇ button on each card saves just that device's preview as a PNG — it scrolls the card into view first, screenshots the tab, and crops to that card, so it works even if the card isn't currently on screen (as long as it can fit within the browser window at all).
+8. The camera button on each card saves just that device's preview as a PNG — it scrolls the card into view first, screenshots the tab, and crops to that card, so it works even if the card isn't currently on screen (as long as it can fit within the browser window at all). The toolbar's export button does the same for all four cards at once, combined into a single image. Both show a toast (with a short sound) on success or failure.
 9. The row of pills below the toolbar (Mobile, Tablet, Laptop, Desktop) toggles which categories are shown — e.g. turn off Laptop and Desktop to preview only Mobile and Tablet. At least one stays on. This choice is remembered for next time.
+10. The gear icon in the toolbar opens the Options page directly (see "Customizing the device list" below) — no need to go through the extensions menu.
 
 If the icon is clicked on a page that isn't `http(s)://` (like `chrome://` pages or a blank new tab), Sense falls back to your last-previewed URL if there is one, or an empty URL bar otherwise.
 
@@ -48,7 +49,7 @@ Many sites send headers (`X-Frame-Options`, `Content-Security-Policy: frame-ance
      - `webNavigation` — enumerates a tab's sub-frame IDs so the measurement script above can be targeted precisely at Sense's preview sub-frames. Without it, injection has to fall back to targeting the whole tab, which fails outright because that also covers Sense's own `chrome-extension://` page — an origin the extension can't inject into even though it's the extension's own.
    - A **privacy policy URL** — a one-paragraph hosted page (a GitHub Gist works) stating that Sense doesn't collect, transmit, or store any data outside the user's own browser is enough.
 6. Submit for review. Broad host permissions are the most common rejection trigger — if rejected, the feedback will point at exactly which justification needs more detail; fix and resubmit the same package.
-7. For updates later: bump `version` in `manifest.json`, re-zip, upload as a new package in the same dashboard item, resubmit. Updates that add new permissions (like `scripting`/`webNavigation` above) commonly get pulled into manual review even when the original listing was auto-approved — budget more time than a routine bugfix update.
+7. For updates later: bump `version` in `manifest.json`, re-zip, upload as a new package in the same dashboard item, resubmit. Updates that add new permissions (like `scripting`/`webNavigation` did in 1.0.1) commonly get pulled into manual review even when the original listing was auto-approved — budget more time than a routine bugfix update in that case. An update that only changes UI/behavior without touching `permissions`/`host_permissions` (like 1.0.2) doesn't have that extra justification step and should follow the faster, routine review path. See `CHANGELOG.md` for what changed release to release.
 
 ## Known limitations (MVP)
 
@@ -69,10 +70,15 @@ sense/
 │   │   ├── index.js           # wires listeners — no logic of its own
 │   │   ├── header-rules.js    # declarativeNetRequest rule that unblocks iframing
 │   │   ├── viewer-launcher.js # opens viewer.html for the clicked tab
-│   │   └── capture.js         # captures the visible tab for screenshot.js
+│   │   ├── capture.js         # captures the visible tab for screenshot.js
+│   │   └── frame-height.js    # measures each preview sub-frame's true content height for full-page capture
 │   ├── shared/                 # code used by more than one page
-│   │   ├── theme.css          # design tokens + generic .btn styles
-│   │   └── storage.js         # chrome.storage.local reads/writes (single source of key names)
+│   │   ├── theme.css          # design tokens + generic .btn/.toast styles
+│   │   ├── theme.js           # applies the stored theme, wires the theme-toggle button
+│   │   ├── storage.js         # chrome.storage.local reads/writes (single source of key names)
+│   │   ├── toast.js           # success/warning/error/loading notifications
+│   │   ├── sound.js           # short Web Audio tones that accompany toasts
+│   │   └── device-icons.js    # mobile/tablet/laptop/desktop glyphs shared by both pages
 │   ├── viewer/                 # the multi-screen preview page
 │   │   ├── viewer.html
 │   │   ├── viewer.css         # page-specific layout, imports shared/theme.css

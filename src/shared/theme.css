@@ -1,9 +1,12 @@
 /* Design tokens and generic controls shared by every Sense page (viewer,
    options). Page-specific layout stays in each page's own stylesheet.
-   Palette — "Circuit": cool slate ground, near-black ink, one electric
-   indigo accent — the same #4f46e5 as the toolbar/store icon (see
-   tools/generate-icons.js), so the icon and the app finally read as one
-   brand instead of two. A single accent keeps the design disciplined;
+   Palette — "Circuit": cool slate ground, near-black ink, one warm orange
+   accent — the same #a84908 as the toolbar/store icon (see
+   tools/generate-icons.js), so the icon and the app read as one brand
+   instead of two. Deliberately not blue/indigo/purple/teal — and not the
+   same hue as any of the toast system's semantic colors below (green
+   success, amber warning, red/coral error), so the accent never gets
+   confused for a status. A single accent keeps the design disciplined;
    spend it only on state (hover/active/focus) and the brand mark. */
 :root {
   color-scheme: light;
@@ -13,10 +16,10 @@
   --color-ink: #12141c;
   --color-ink-soft: #565f72;
   --color-line: rgba(18, 20, 28, 0.14);
-  --color-accent: #4f46e5;
+  --color-accent: #a84908;
   --color-on-accent: #ffffff;
   /* Not part of the Circuit palette as given — a clean red reads
-     unambiguously as "error" without competing with the indigo accent. */
+     unambiguously as "error" without competing with the orange accent. */
   --color-danger: #b3261e;
 
   /* Hover/active are derived from --color-accent (not hand-picked hexes) so
@@ -67,7 +70,7 @@
   /* A translucent single-color ring reads at roughly 1.5–1.9:1 against
      these backgrounds — well under the 3:1 WCAG 1.4.11 non-text contrast
      minimum for UI-state indicators. A surface-colored gap plus a fully
-     opaque accent ring measures 6.3:1 (light) / 6.2:1 (dark) instead. */
+     opaque accent ring measures 5.8:1 (light) / 8.1:1 (dark) instead. */
   --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
 
   /* Motion — one easing voice; durations split into quick (the only one this
@@ -90,7 +93,7 @@
     --color-ink: #e8eaf2;
     --color-ink-soft: #9aa1b5;
     --color-line: rgba(232, 234, 242, 0.16);
-    --color-accent: #8b8cf7;
+    --color-accent: #fb923c;
     --color-on-accent: #0a0c12;
     --color-danger: #f0938f;
 
@@ -110,7 +113,7 @@
   --color-ink: #e8eaf2;
   --color-ink-soft: #9aa1b5;
   --color-line: rgba(232, 234, 242, 0.16);
-  --color-accent: #8b8cf7;
+  --color-accent: #fb923c;
   --color-on-accent: #0a0c12;
   --color-danger: #f0938f;
 
@@ -374,11 +377,11 @@ body {
    value used throughout this component, for the reasons in the .toast
    comment above. */
 .toast-loading {
-  box-shadow: var(--shadow-md), inset 4px 0 0 #8b8cf7;
+  box-shadow: var(--shadow-md), inset 4px 0 0 #fb923c;
 }
 
 .toast-loading .toast-icon {
-  color: #8b8cf7;
+  color: #fb923c;
 }
 
 .toast-message {
@@ -398,7 +401,7 @@ body {
   font: inherit;
   font-size: 14px;
   font-weight: 700;
-  color: #8b8cf7;
+  color: #fb923c;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -406,5 +409,5 @@ body {
 
 .toast-action:hover,
 .toast-action:focus-visible {
-  color: #a5a6f9;
+  color: #fdba74;
 }

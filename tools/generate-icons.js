@@ -7,7 +7,7 @@ const zlib = require("zlib");
 
 const OUT_DIR = path.resolve(__dirname, "../icons");
 
-const BG = [79, 70, 229, 255]; // #4f46e5
+const BG = [168, 73, 8, 255]; // #a84908
 const FG = [255, 255, 255, 255];
 
 function crc32(buf) {

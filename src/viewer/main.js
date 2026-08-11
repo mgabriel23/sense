@@ -60,56 +60,64 @@ const SPINNER_ICON =
 // centered card instead of spotlighting an element. Device-card steps
 // target the Mobile card specifically — all four work identically, so
 // walking through one is enough rather than repeating it four times.
+// Sentences here are kept short and plain on purpose — this is the very
+// first thing a new user reads, so it's not the place for long or clever
+// phrasing.
 const TOUR_STEPS = [
   {
     target: null,
     title: "Welcome to Sense",
-    body: "Preview any website at four sizes side by side — no more manually resizing DevTools. Here's a quick look at what's on screen.",
+    body: "Sense shows one website at four screen sizes at the same time. No more resizing your browser by hand. Here's a quick look around.",
   },
   {
     target: "#url-input",
     title: "Enter a URL",
-    body: "Type or paste any website address here. Click into the box any time to revisit your last 8 previewed links.",
+    body: "Type or paste a website address here. Click the box any time to see your last 8 links.",
   },
   {
     target: ".url-form .btn-primary",
     title: "Load the preview",
-    body: "Click View (or just press Enter) to render the page across all four screens at once.",
+    body: "Click View, or just press Enter. The page loads on all four screens at once.",
   },
   {
     target: "#reload-all",
     title: "Reload everything",
-    body: "Refreshes all four previews together — handy after the page you're testing changes.",
+    body: "Reloads all four previews at once. Use this after the page you're testing changes.",
+  },
+  {
+    target: "#export-all",
+    title: "Save all four screens",
+    body: "Saves all four previews together as one image — handy for sharing your work.",
   },
   {
     target: "#theme-toggle",
     title: "Light or dark",
-    body: "Switches Sense's own theme. Your choice is remembered for next time.",
+    body: "Switches Sense between light and dark mode. Your choice is remembered for next time.",
   },
   {
     target: ".category-toggles",
     title: "Show or hide sizes",
-    body: "Click a pill to hide that size category, or bring it back. At least one always stays visible.",
+    body: "Click a pill to hide or show that size. At least one size must always stay visible.",
   },
   {
     target: '.device-card[data-category="mobile"] .device-select',
     title: "Pick a device",
-    body: "Each card can show a specific device within its category — e.g. swap this from iPhone SE to Pixel 7 — without affecting the other three cards.",
+    body: "Each card can show a specific phone, tablet, laptop, or desktop. Changing one card never changes the others.",
   },
   {
     target: '.device-card[data-category="mobile"] .rotate-btn',
     title: "Rotate a card",
-    body: "Flips this card between portrait and landscape. It's remembered per card, even if you switch to a different device afterward.",
+    body: "Flips this card between portrait and landscape. The badge next to the size tells you which one you're in. Sense remembers this choice per card.",
   },
   {
     target: '.device-card[data-category="mobile"] .screenshot-btn',
-    title: "Save a screenshot",
-    body: "Downloads just this card's preview as a PNG — it scrolls the card into view first if it isn't already visible.",
+    title: "Save one screenshot",
+    body: "Saves just this card's preview as an image. If the card is off-screen, Sense scrolls to it first.",
   },
   {
     target: null,
     title: "You're all set",
-    body: "Reopen this tour anytime from the (?) icon in the toolbar. The gear icon next to it opens Settings, where you can customize the device list.",
+    body: "Open this tour again anytime from the (?) icon in the toolbar. The gear icon next to it opens Settings, where you can add or remove devices.",
   },
 ];
 

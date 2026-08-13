@@ -8,7 +8,7 @@
 
 | Multi-Device Preview Grid | Device List Options Page |
 | :---: | :---: |
-| ![Sense Multi-Device Viewport Preview](https://github.com/mgabriel23/portfolio/blob/master/assets/sense-gallery-3.webp) | ![Sense Extension Options Page](https://github.com/mgabriel23/portfolio/blob/master/assets/sense-gallery-3.webp) |
+| ![Sense Multi-Device Viewport Preview](https://github.com/mgabriel23/portfolio/blob/master/assets/sense-gallery-1.webp) | ![Sense Extension Options Page](https://github.com/mgabriel23/portfolio/blob/master/assets/sense-gallery-3.webp) |
 
 ---
 

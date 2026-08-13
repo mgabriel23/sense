@@ -4,7 +4,7 @@
 
 ---
 
-## 📸 Visual Preview
+## Visual Preview
 
 | Multi-Device Preview Grid | Device List Options Page |
 | :---: | :---: |
@@ -12,7 +12,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 * **Side-by-Side Viewports:** Instant 4-screen layout rendering Mobile, Tablet, Laptop, and Desktop viewports simultaneously.
 * **Per-Card Device Swapping:** Toggle between popular presets (*iPhone 14, Pixel 7, Galaxy S21, iPad, MacBook, 1080p Desktop*) independently for each category.
@@ -27,7 +27,7 @@
 
 ---
 
-## 🛠️ Tech Stack & Permissions
+## Tech Stack & Permissions
 
 * **Core Engine:** HTML5, Modern CSS (Design Tokens, Flexbox/Grid), JavaScript (ES Modules).
 * **Extension Standard:** Chrome Extension Manifest V3 (MV3 Service Workers).

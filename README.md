@@ -19,13 +19,6 @@
     <img alt="itsmebryle.com" src="assets/btn-site-light.svg">
   </picture>
 </a>
-<a href="https://github.com/mgabriel23">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/btn-author-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/btn-author-light.svg">
-    <img alt="More by Mark" src="assets/btn-author-light.svg">
-  </picture>
-</a>
 </p>
 
 ## Preview
@@ -80,16 +73,4 @@ Sense requests the minimum needed to render live pages inside frames.
 
 Open [the listing](https://chromewebstore.google.com/search/sense%20multi%20screen%20preview) and click **Add to Chrome**.
 
-**From source, for development**
-
-```bash
-git clone https://github.com/mgabriel23/sense.git
-```
-
-1. Open `chrome://extensions` and enable **Developer mode**.
-2. Click **Load unpacked** and select the cloned folder.
-3. Press `Ctrl+Shift+Y` on any tab to launch the viewer.
-
 ---
-
-Built by [Mark Bryan Gabriel](https://github.com/mgabriel23) · [itsmebryle.com](https://itsmebryle.com)
